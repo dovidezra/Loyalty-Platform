@@ -1,0 +1,50 @@
+
+/*
+ * Form related styles
+ */
+
+.form {
+  select.form-control {
+    height: 2.5rem;
+  }
+
+  // Add .flat-form to remove all border-radius
+  &.flat-form.form-group {
+    * {
+      border-radius: 0 !important;
+    }
+  }
+
+  .input-group-addon {
+    padding-right: 0;
+    background-color: $input-bg !important;
+    //border-color: transparent !important;
+    color: $input-border-color !important;
+  }
+
+  .input-group-addon:not(:first-child), .input-group-btn:not(:first-child)>.btn, .input-group-btn:not(:first-child)>.btn-group>.btn, .input-group-btn:not(:first-child)>.dropdown-toggle, .input-group-btn:not(:last-child)>.btn-group:not(:first-child)>.btn, .input-group-btn:not(:last-child)>.btn:not(:first-child), .input-group .form-control:not(:first-child) {
+    border-left: 0 !important;
+  }
+
+  &.form-rounded {
+    .form-control {
+      border-radius: 0.75rem;
+      transition: all 0.3s ease-in-out;
+    }
+    .form-control:focus {
+      border-color: transparent;
+      box-shadow: 0 15px 50px rgba(0,0,0,0.2);
+    }
+  }
+}
+
+.text-light {
+  .form {
+
+    &.form-rounded {
+      .form-control:focus {
+        box-shadow: 0 15px 50px rgba(0,0,0,0.5);
+      }
+    }
+  }
+}

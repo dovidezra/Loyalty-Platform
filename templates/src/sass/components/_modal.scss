@@ -1,0 +1,27 @@
+
+/*
+ * Modals
+ */
+
+.modal {
+  .modal-dialog {
+    border: 0;
+    border-radius: 0;
+    box-shadow: $mdl-shadow--16dp;
+
+    .modal-content {
+      border: 0;
+      border-radius: 0;
+
+      .modal-header {
+        border-bottom: 0;
+        padding-bottom: 0;
+      }
+
+      .modal-footer {
+        border-top: 0;
+        padding-top: 0;
+      }
+    }
+  }
+}

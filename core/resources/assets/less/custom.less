@@ -1,0 +1,289 @@
+@import "variables.less";
+@import "elements.less";
+
+html {
+  overflow-y: scroll;
+}
+
+body {
+  padding-bottom: 0 !important;
+  overflow: hidden;
+}
+
+#topnav .navigation-menu>li>a {
+  font-size:16px;
+}
+
+#topnav .navigation-menu>li>a i {
+  top: 4px;
+  position: relative;
+  margin-right: 3px !important;
+  font-size: 20px !important;
+}
+
+#topnav .topbar-main .logo i {
+  position: relative;
+  top: 6px;
+}
+
+#topnav .topbar-main .logo {
+  margin-top: 6px !important;
+}
+
+.wrapper {
+    margin-top: 130px !important;
+}
+
+@media (max-width: 992px) {
+  .wrapper {
+      margin-top: 60px !important;
+  }
+}
+
+.m-t {
+  margin-top: 20px;
+}
+
+.dataTables_processing {
+  border: 0;
+}
+
+.card-box.table-responsive {
+  padding: 20px 20px 12px !important;
+}
+
+table.dataTable.dtr-inline.collapsed>tbody>tr>td:first-child:before, table.dataTable.dtr-inline.collapsed>tbody>tr>th:first-child:before {
+  left: 6px !important;
+}
+
+.help-icon {
+  color: #fafafa;
+  font-size: 19px!important;
+  cursor: help;
+  margin: 0px 0 0 2px;
+  position: relative;
+  top: 4px;
+}
+
+.help-icon:hover {
+  color: #cacaca;
+}
+
+// Form
+.input-group-btn.add-on .btn {
+  border-width: 2px !important;
+}
+
+.input-group-btn-vertical {
+  .bootstrap-touchspin-up {
+    border-bottom-width: 2px !important;
+  }
+  .bootstrap-touchspin-down {
+    border-top-width: 2px !important;
+  }
+}
+
+// Select2
+.select2-container {
+  width: 100% !important;
+  border: 2px solid fade(@white, 10%)  !important;
+  padding: 5px 5px 5px 12px !important;
+  border-radius: 3px;
+
+  &.select2-container--open {
+    border: 0 !important;
+  }
+
+  &.select2-container--below {
+    border: 2px solid fade(@white, 10%)  !important;
+  }
+
+  .select2-selection,
+  .select2-selection__rendered {
+    background-image: none !important;
+    border: none !important;
+    height: auto  !important;
+    padding: 0px !important;
+    line-height: 22px !important;
+    background-color: transparent !important;
+    box-shadow: none !important;
+    color: @white !important;
+
+    .select2-arrow {
+      background-image: none !important;
+      background: transparent;
+      border: none;
+      width: 14px;
+      top: -2px;
+    }
+  }
+
+  .select2-container-multi.form-control {
+    height: auto;
+  }
+}
+.select2-results .select2-highlighted {
+  color: #ffffff;
+  background-color: @primary;
+}
+.select2-drop-active {
+  border: 1px solid #e3e3e3 !important;
+  padding-top: 5px;
+  .box-shadow( 0 2px 2px rgba(0, 0, 0, .15));
+}
+.select2-search {
+  input{
+    border: 1px solid #e3e3e3;
+  }
+}
+.select2-container-multi {
+  width: 100%;
+
+  .select2-choices {
+    border: 2px solid fade(@white,20%)  !important;
+    box-shadow: none !important;
+    background: transparent !important;
+    background-image: none  !important;
+    .border-radius(4px)  !important;
+    min-height: 38px;
+
+    .select2-search-choice {
+      padding: 6px 8px 7px 19px;
+      margin: 5px 0 3px 5px;
+      color: @white;
+      background: fade(@white,20%);
+      border: none;
+      -webkit-box-shadow: none;
+      box-shadow: none;
+    }
+    .select2-search-field {
+      input {
+        padding: 7px 7px 7px 10px;
+        font-family: inherit;
+      }
+    }
+    .select2-search-choice-close {
+      top: 6px;
+    }
+  }
+}
+
+// Date Picker
+.datepicker {
+  z-index: 10000 !important;
+}
+
+.datepicker table tr td span.focused, .datepicker table tr td span:hover,
+.datepicker .datepicker-switch:hover, .datepicker .next:hover, .datepicker .prev:hover, .datepicker tfoot tr th:hover,
+.datepicker table tr td.day:hover, .datepicker table tr td.focused {
+  background-color: #111 !important;
+  color: #fff !important;
+}
+
+.datepicker-dropdown.datepicker-orient-top:after {
+  border-top-color: #1c2127;
+}
+
+.datepicker-dropdown:after {
+  border-bottom-color: #1c2127;
+}
+
+// Date Range Picker
+.daterangepicker .input-mini.active,
+.daterangepicker td.off, .daterangepicker td.off.end-date, .daterangepicker td.off.in-range, .daterangepicker td.off.start-date,
+.daterangepicker .calendar-table {
+  background: none !important;
+  border-color: hsla(0,0%,93%,.1) !important;
+}
+
+.daterangepicker td {
+  border: 0 !important;
+}
+
+.daterangepicker td.available:hover, .daterangepicker th.available:hover {
+  background-color: #3bafda !important;
+  color: #fff !important;
+}
+
+.daterangepicker button, .daterangepicker input, .daterangepicker optgroup, .daterangepicker select, .daterangepicker textarea,
+.daterangepicker .input-mini {
+  color: #aaa !important;
+}
+
+.daterangepicker .input-mini {
+  border-radius: 2px;
+}
+
+.daterangepicker .btn {
+  color: #fff !important;
+}
+
+.daterangepicker:after {
+  border-bottom-color: #1c2127 !important;
+}
+
+.daterangepicker .ranges li.active, .daterangepicker .ranges li:hover {
+  color: #fff;
+}
+
+.daterangepicker td.in-range {
+  background-color: #000000;
+  color: #fff;
+}
+
+// TinyMCE
+.mce-container .mce-widget,
+.mce-floatpanel .mce-textbox,
+.mce-container .mce-btn:focus .mce-ico,
+.mce-container .mce-btn:active .mce-ico,
+.mce-container .mce-btn.mce-active .mce-ico {
+  color: #222 !important;
+}
+.mce-floatpanel {
+  box-shadow: 0 16px 24px 2px rgba(0, 0, 0, 0.14), 0 6px 30px 5px rgba(0, 0, 0, 0.12), 0 8px 10px -5px rgba(0, 0, 0, 0.2);
+}
+
+.mce-floatpanel div.mce-btn:not(.mce-primary) {
+  background-color: #f0f0f0 !important;
+  border-width: 0px !important;
+
+  .mce-txt {
+    color: #333 !important;
+  }
+
+  i.mce-caret {
+    border-top-color: #333 !important;
+  }
+}
+.mce-floatpanel div.mce-btn:not(.mce-primary):hover {
+  background-color: darken(#f0f0f0, 10%) !important;
+
+  i.mce-caret {
+      border-top-color: darken(#333, 10%) !important;
+  }
+}
+
+.mce-container.mce-menu .mce-menu-item.mce-selected .mce-ico, 
+.mce-container.mce-menu .mce-menu-item:focus .mce-ico,
+.mce-container.mce-menu .mce-menu-item:hover .mce-ico,
+.mce-floatpanel .mce-menu-item:focus span.mce-text,
+.mce-floatpanel .mce-menu-item:hover span.mce-text,
+.mce-floatpanel .mce-menu-item.mce-active span.mce-text {
+  color: #fff !important;
+}
+
+.mce-floatpanel .mce-combobox {
+  .mce-btn button {
+    border: 1px solid #d7dce5 !important;
+    border-left: 0 !important;
+    .mce-ico {
+      color: #333 !important;
+    }
+  }
+}
+
+.mce-floatpanel .mce-combobox:hover {
+  .mce-btn button {
+    border-color: darken(#d7dce5, 10%) !important;
+  }
+}

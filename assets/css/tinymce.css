@@ -1,0 +1,10 @@
+html, body {
+  background: #2b323a;
+}
+
+body {
+  margin: 0;
+  padding:0 15px;
+  color: #fff;
+  font-size:1rem;
+}

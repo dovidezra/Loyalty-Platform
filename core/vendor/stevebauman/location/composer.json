@@ -1,0 +1,43 @@
+{
+    "name": "stevebauman/location",
+    "description": "Retrieve a users location by their IP Address using Laravel 5",
+    "authors": [
+        {
+            "name": "Steve Bauman",
+            "email": "steven_bauman@outlook.com"
+        }
+    ],
+    "license" : "MIT",
+    "keywords" : [
+        "laravel", 
+        "php",
+        "location",
+        "geo",
+        "geoIP",
+        "geo-location",
+        "ip"
+    ],
+    "require": {
+        "php": ">=5.5.9",
+        "illuminate/support": "5.*",
+        "geoip2/geoip2": "2.3.*"
+    },
+    "require-dev": {
+        "mockery/mockery": "~0.9",
+        "orchestra/testbench": "~3.2"
+    },
+    "archive": {
+      "exclude": ["/tests"]
+    },
+    "autoload": {
+        "psr-4": {
+            "Stevebauman\\Location\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Stevebauman\\Location\\Tests\\": "tests/"
+        }
+    },
+    "minimum-stability": "stable"
+}

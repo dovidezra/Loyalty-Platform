@@ -1,0 +1,34 @@
+
+/*
+ * Here you can add your custom CSS.
+ */
+
+body {
+}
+
+.card.coupon {
+
+  border-top-left-radius: .25rem;
+  border-top-right-radius: .25rem;
+
+  .navbar {
+    border-top-left-radius: .25rem;
+    border-top-right-radius: .25rem;
+  }
+}
+
+.btn {
+  .material-icons {
+    top: 3px;
+  }
+}
+
+// Coupon borders
+
+.coupon-border-top {
+  border-top: 2px dashed #222;
+}
+
+.coupon-border-bottom {
+  border-bottom: 2px dashed #222;
+}
