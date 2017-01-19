@@ -7,6 +7,7 @@ use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Collection as BaseCollection;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class BelongsToMany extends Relation
@@ -256,13 +257,14 @@ class BelongsToMany extends Relation
      * @param  int  $perPage
      * @param  array  $columns
      * @param  string  $pageName
+     * @param  int|null  $page
      * @return \Illuminate\Contracts\Pagination\Paginator
      */
-    public function simplePaginate($perPage = null, $columns = ['*'], $pageName = 'page')
+    public function simplePaginate($perPage = null, $columns = ['*'], $pageName = 'page', $page = null)
     {
         $this->query->addSelect($this->getSelectColumns($columns));
 
-        $paginator = $this->query->simplePaginate($perPage, $columns, $pageName);
+        $paginator = $this->query->simplePaginate($perPage, $columns, $pageName, $page);
 
         $this->hydratePivotRelation($paginator->items());
 
@@ -871,7 +873,7 @@ class BelongsToMany extends Relation
     /**
      * Sync the intermediate tables with a list of IDs or collection of models.
      *
-     * @param  \Illuminate\Database\Eloquent\Collection|array  $ids
+     * @param  \Illuminate\Database\Eloquent\Collection|\Illuminate\Support\Collection|array  $ids
      * @param  bool   $detaching
      * @return array
      */
@@ -883,6 +885,10 @@ class BelongsToMany extends Relation
 
         if ($ids instanceof Collection) {
             $ids = $ids->modelKeys();
+        }
+
+        if ($ids instanceof BaseCollection) {
+            $ids = $ids->toArray();
         }
 
         // First we need to attach any of the associated models that are not currently

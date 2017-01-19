@@ -15,8 +15,8 @@ use Illuminate\Routing\Matching\UriValidator;
 use Illuminate\Routing\Matching\HostValidator;
 use Illuminate\Routing\Matching\MethodValidator;
 use Illuminate\Routing\Matching\SchemeValidator;
-use Symfony\Component\Routing\Route as SymfonyRoute;
 use Illuminate\Http\Exception\HttpResponseException;
+use Symfony\Component\Routing\Route as SymfonyRoute;
 
 class Route
 {
@@ -275,7 +275,7 @@ class Route
      */
     public function gatherMiddleware()
     {
-        return array_merge($this->middleware(), $this->controllerMiddleware());
+        return array_unique(array_merge($this->middleware(), $this->controllerMiddleware()), SORT_REGULAR);
     }
 
     /**

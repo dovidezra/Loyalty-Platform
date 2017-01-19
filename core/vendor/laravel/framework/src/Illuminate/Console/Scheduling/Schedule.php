@@ -18,7 +18,7 @@ class Schedule
     /**
      * Add a new callback event to the schedule.
      *
-     * @param  string  $callback
+     * @param  string|callable  $callback
      * @param  array   $parameters
      * @return \Illuminate\Console\Scheduling\Event
      */
@@ -76,7 +76,15 @@ class Schedule
     protected function compileParameters(array $parameters)
     {
         return collect($parameters)->map(function ($value, $key) {
-            return is_numeric($key) ? $value : $key.'='.(is_numeric($value) ? $value : ProcessUtils::escapeArgument($value));
+            if (is_array($value)) {
+                $value = collect($value)->map(function ($value) {
+                    return ProcessUtils::escapeArgument($value);
+                })->implode(' ');
+            } elseif (! is_numeric($value) && ! preg_match('/^(-.$|--.*)/i', $value)) {
+                $value = ProcessUtils::escapeArgument($value);
+            }
+
+            return is_numeric($key) ? $value : "{$key}={$value}";
         })->implode(' ');
     }
 

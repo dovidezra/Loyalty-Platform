@@ -14,8 +14,8 @@ use Illuminate\Support\Traits\Macroable;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Psr\Http\Message\ResponseInterface as PsrResponseInterface;
-use Symfony\Bridge\PsrHttpMessage\Factory\HttpFoundationFactory;
 use Illuminate\Contracts\Routing\Registrar as RegistrarContract;
+use Symfony\Bridge\PsrHttpMessage\Factory\HttpFoundationFactory;
 use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 
 class Router implements RegistrarContract
@@ -248,6 +248,17 @@ class Router implements RegistrarContract
     }
 
     /**
+     * Get or set the verbs used in the resource URIs.
+     *
+     * @param  array  $verbs
+     * @return array|null
+     */
+    public function resourceVerbs(array $verbs = [])
+    {
+        return ResourceRegistrar::verbs($verbs);
+    }
+
+    /**
      * Register an array of resource controllers.
      *
      * @param  array  $resources
@@ -289,10 +300,10 @@ class Router implements RegistrarContract
         // Authentication Routes...
         $this->get('login', 'Auth\LoginController@showLoginForm')->name('login');
         $this->post('login', 'Auth\LoginController@login');
-        $this->post('logout', 'Auth\LoginController@logout');
+        $this->post('logout', 'Auth\LoginController@logout')->name('logout');
 
         // Registration Routes...
-        $this->get('register', 'Auth\RegisterController@showRegistrationForm');
+        $this->get('register', 'Auth\RegisterController@showRegistrationForm')->name('register');
         $this->post('register', 'Auth\RegisterController@register');
 
         // Password Reset Routes...
@@ -741,32 +752,7 @@ class Router implements RegistrarContract
      */
     protected function sortMiddleware(Collection $middlewares)
     {
-        $priority = $this->middlewarePriority;
-
-        $sorted = [];
-
-        foreach ($middlewares as $middleware) {
-            if (in_array($middleware, $sorted)) {
-                continue;
-            }
-
-            if (($index = array_search($middleware, $priority)) !== false) {
-                $sorted = array_merge(
-                    $sorted,
-                    array_filter(
-                        array_slice($priority, 0, $index),
-                        function ($middleware) use ($middlewares, $sorted) {
-                            return $middlewares->contains($middleware) &&
-                                 ! in_array($middleware, $sorted);
-                        }
-                    )
-                );
-            }
-
-            $sorted[] = $middleware;
-        }
-
-        return $sorted;
+        return (new SortedMiddleware($this->middlewarePriority, $middlewares))->all();
     }
 
     /**
@@ -818,7 +804,7 @@ class Router implements RegistrarContract
                 ! $route->getParameter($parameter->name) instanceof Model) {
                 $method = $parameter->isDefaultValueAvailable() ? 'first' : 'firstOrFail';
 
-                $model = $class->newInstance();
+                $model = $this->container->make($class->name);
 
                 $route->setParameter(
                     $parameter->name, $model->where(

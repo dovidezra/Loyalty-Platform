@@ -1,7 +1,6 @@
 <?php namespace Maatwebsite\Excel\Readers;
 
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Config;
 use Illuminate\Contracts\Bus\Dispatcher;
 use Illuminate\Support\Facades\Queue;
 use Maatwebsite\Excel\Classes\PHPExcel;
@@ -546,9 +545,9 @@ class LaravelExcelReader
     /**
      * Parse the file in chunks and queues the processing of each chunk
      *
-     * @param int      $size
-     * @param callable $callback
-     * @param bool     $shouldQueue
+     * @param int           $size
+     * @param callable      $callback
+     * @param bool|string   $shouldQueue
      */
     public function chunk($size = 10, callable $callback, $shouldQueue = true)
     {
@@ -574,6 +573,10 @@ class LaravelExcelReader
             );
 
             if ($shouldQueue) {
+                // If a string is passed (which also evaluates to true if not empty), assign to that named queue
+                if(is_string($shouldQueue)) {
+                    $job->onQueue($shouldQueue);
+                }
                 $this->dispatcher->dispatch($job);
             } else {
                 $break = $job->handle();
@@ -920,7 +923,7 @@ class LaravelExcelReader
     public function hasHeading()
     {
         if (!$this->noHeading) {
-            $config = Config::get('excel.import.heading', true);
+            $config = config('excel.import.heading', true);
 
             return $config !== false && $config !== 'numeric';
         }
@@ -939,7 +942,7 @@ class LaravelExcelReader
             return $this->separator;
         }
 
-        return Config::get('excel.import.separator', Config::get('excel.import.seperator', '_'));
+        return config('excel.import.separator', config('excel.import.seperator', '_'));
     }
 
     /**
@@ -1176,7 +1179,7 @@ class LaravelExcelReader
     {
         if ($this->format == 'CSV') {
             // If no encoding was given, use the config value
-            $encoding = $encoding ? $encoding : Config::get('excel.import.encoding.input', 'UTF-8');
+            $encoding = $encoding ? $encoding : config('excel.import.encoding.input', 'UTF-8');
             $this->reader->setInputEncoding($encoding);
         }
 
@@ -1194,35 +1197,35 @@ class LaravelExcelReader
         if ($this->format == 'CSV') {
             // If no delimiter was given, take from config
             if (!$this->delimiter) {
-                $this->reader->setDelimiter(Config::get('excel.csv.delimiter', ','));
+                $this->reader->setDelimiter(config('excel.csv.delimiter', ','));
             } else {
                 $this->reader->setDelimiter($this->delimiter);
             }
 
             if (!$this->enclosure) {
-                $this->reader->setEnclosure(Config::get('excel.csv.enclosure', '"'));
+                $this->reader->setEnclosure(config('excel.csv.enclosure', '"'));
             } else {
                 $this->reader->setEnclosure($this->enclosure);
             }
         }
 
         // Set default calculate
-        $this->calculate = Config::get('excel.import.calculate', true);
+        $this->calculate = config('excel.import.calculate', true);
 
         // Set default for ignoring empty cells
-        $this->ignoreEmpty = Config::get('excel.import.ignoreEmpty', true);
+        $this->ignoreEmpty = config('excel.import.ignoreEmpty', true);
 
         // Set default date format
-        $this->dateFormat = Config::get('excel.import.dates.format', 'Y-m-d');
+        $this->dateFormat = config('excel.import.dates.format', 'Y-m-d');
 
         // Date formatting disabled/enabled
-        $this->formatDates = Config::get('excel.import.dates.enabled', true);
+        $this->formatDates = config('excel.import.dates.enabled', true);
 
         // Set default date columns
-        $this->dateColumns = Config::get('excel.import.dates.columns', []);
+        $this->dateColumns = config('excel.import.dates.columns', []);
 
         // Set default include charts
-        $this->reader->setIncludeCharts(Config::get('excel.import.includeCharts', false));
+        $this->reader->setIncludeCharts(config('excel.import.includeCharts', false));
     }
 
     /**
