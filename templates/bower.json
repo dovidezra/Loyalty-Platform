@@ -2,8 +2,8 @@
   "name": "NowSquare Web Blocks",
   "version": "1.0.0",
   "dependencies": {
-    "bootstrap": "v4.0.0-alpha.4",
-    "font-awesome": "fontawesome#^4.6.3",
+    "bootstrap": "v4.0.0-alpha.6",
+    "font-awesome": "fontawesome#^4.7.0",
     "ekko-lightbox": "^4.0.2",
     "parsleyjs": "^2.4.4",
     "material-color": "^2.3.1",
@@ -18,6 +18,6 @@
     "ladda": "^1.0.0",
     "blockUI": "*",
     "spinthatshit": "^1.0.2",
-    "bootstrap-validator": "^0.11.5"
+    "bootstrap-validator": "^0.11.9"
   }
 }
