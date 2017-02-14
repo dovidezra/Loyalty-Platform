@@ -24,6 +24,7 @@ class SimpleMessage
      * The notification's greeting.
      *
      * @var string
+<<<<<<< HEAD
      */
     public $greeting;
 
@@ -33,6 +34,10 @@ class SimpleMessage
      * @var string
      */
     public $salutation;
+=======
+     */
+    public $greeting;
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
 
     /**
      * The "intro" lines of the notification.

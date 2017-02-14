@@ -55,6 +55,7 @@ class Mailable implements MailableContract
      * @var string
      */
     public $subject;
+<<<<<<< HEAD
 
     /**
      * The Markdown template for the message (if applicable).
@@ -62,6 +63,8 @@ class Mailable implements MailableContract
      * @var string
      */
     protected $markdown;
+=======
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
 
     /**
      * The view to use for the message.

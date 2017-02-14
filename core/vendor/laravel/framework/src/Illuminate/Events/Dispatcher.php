@@ -303,10 +303,29 @@ class Dispatcher implements DispatcherContract
      */
     protected function addInterfaceListeners($eventName, array $listeners = [])
     {
+<<<<<<< HEAD
         foreach (class_implements($eventName) as $interface) {
             if (isset($this->listeners[$interface])) {
                 foreach ($this->listeners[$interface] as $names) {
                     $listeners = array_merge($listeners, (array) $names);
+=======
+        // If listeners exist for the given event, we will sort them by the priority
+        // so that we can call them in the correct order. We will cache off these
+        // sorted event listeners so we do not have to re-sort on every events.
+        $listeners = isset($this->listeners[$eventName])
+                            ? $this->listeners[$eventName] : [];
+
+        if (class_exists($eventName)) {
+            foreach (class_implements($eventName) as $interface) {
+                if (isset($this->listeners[$interface])) {
+                    foreach ($this->listeners[$interface] as $priority => $names) {
+                        if (isset($listeners[$priority])) {
+                            $listeners[$priority] = array_merge($listeners[$priority], $names);
+                        } else {
+                            $listeners[$priority] = $names;
+                        }
+                    }
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
                 }
             }
         }

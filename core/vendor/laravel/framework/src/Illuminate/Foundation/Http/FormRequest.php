@@ -5,10 +5,17 @@ namespace Illuminate\Foundation\Http;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Routing\Redirector;
+<<<<<<< HEAD
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Auth\Access\AuthorizationException;
+=======
+use Illuminate\Container\Container;
+use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Validation\ValidationException;
+use Illuminate\Http\Exception\HttpResponseException;
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
 use Illuminate\Validation\ValidatesWhenResolvedTrait;
 use Illuminate\Contracts\Validation\ValidatesWhenResolved;
 use Illuminate\Contracts\Validation\Factory as ValidationFactory;
@@ -78,7 +85,14 @@ class FormRequest extends Request implements ValidatesWhenResolved
         if (method_exists($this, 'validator')) {
             $validator = $this->container->call([$this, 'validator'], compact('factory'));
         } else {
+<<<<<<< HEAD
             $validator = $this->createDefaultValidator($factory);
+=======
+            $validator = $factory->make(
+                $this->validationData(), $this->container->call([$this, 'rules']),
+                $this->messages(), $this->attributes()
+            );
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
         }
 
         if (method_exists($this, 'withValidator')) {
@@ -86,6 +100,7 @@ class FormRequest extends Request implements ValidatesWhenResolved
         }
 
         return $validator;
+<<<<<<< HEAD
     }
 
     /**
@@ -100,6 +115,8 @@ class FormRequest extends Request implements ValidatesWhenResolved
             $this->validationData(), $this->container->call([$this, 'rules']),
             $this->messages(), $this->attributes()
         );
+=======
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
     }
 
     /**

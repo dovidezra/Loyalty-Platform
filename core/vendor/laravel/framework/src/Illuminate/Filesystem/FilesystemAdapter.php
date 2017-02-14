@@ -290,7 +290,20 @@ class FilesystemAdapter implements FilesystemContract, CloudFilesystemContract
         } elseif ($adapter instanceof AwsS3Adapter) {
             return $this->getAwsUrl($adapter, $path);
         } elseif ($adapter instanceof LocalAdapter) {
+<<<<<<< HEAD
             return $this->getLocalUrl($path);
+=======
+            $config = $this->driver->getConfig();
+
+            if ($config->has('url')) {
+                return $config->get('url').'/'.$path;
+            }
+
+            $path = '/storage/'.$path;
+
+            return Str::contains($path, '/storage/public/') ?
+                        Str::replaceFirst('/public/', '/', $path) : $path;
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
         } else {
             throw new RuntimeException('This driver does not support retrieving URLs.');
         }

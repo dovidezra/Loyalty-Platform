@@ -40,5 +40,8 @@
     "config": {
         "sort-packages": true
     },
+    "config": {
+        "sort-packages": true
+    },
     "minimum-stability": "dev"
 }

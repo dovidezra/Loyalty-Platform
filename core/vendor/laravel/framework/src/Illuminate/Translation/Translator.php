@@ -296,7 +296,12 @@ class Translator extends NamespacedItemResolver implements TranslatorContract
         foreach ($lines as $key => $value) {
             list($group, $item) = explode('.', $key, 2);
 
+<<<<<<< HEAD
             Arr::set($this->loaded, "$namespace.$group.$locale.$item", $value);
+=======
+        if (is_array($number) || $number instanceof Countable) {
+            $number = count($number);
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
         }
     }
 

@@ -1480,8 +1480,25 @@ class Request
      *
      * @param bool $andCacheable Adds the additional condition that the method should be cacheable. True by default.
      *
+     * @see https://tools.ietf.org/html/rfc7231#section-4.2.1
+     *
+     * @param bool $andCacheable Adds the additional condition that the method should be cacheable. True by default.
+     *
      * @return bool
      */
+    public function isMethodSafe(/* $andCacheable = true */)
+    {
+        return in_array($this->getMethod(), 0 < func_num_args() && !func_get_arg(0) ? array('GET', 'HEAD', 'OPTIONS', 'TRACE') : array('GET', 'HEAD'));
+    }
+
+    /**
+     * Checks whether the method is cacheable or not.
+     *
+     * @see https://tools.ietf.org/html/rfc7231#section-4.2.3
+     *
+     * @return bool
+     */
+<<<<<<< HEAD
     public function isMethodSafe(/* $andCacheable = true */)
     {
         if (!func_num_args() || func_get_arg(0)) {
@@ -1493,6 +1510,11 @@ class Request
         }
 
         return in_array($this->getMethod(), array('GET', 'HEAD', 'OPTIONS', 'TRACE'));
+=======
+    public function isMethodCacheable()
+    {
+        return in_array($this->getMethod(), array('GET', 'HEAD'));
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
     }
 
     /**

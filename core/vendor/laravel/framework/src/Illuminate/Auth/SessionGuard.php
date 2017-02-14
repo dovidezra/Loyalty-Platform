@@ -5,7 +5,10 @@ namespace Illuminate\Auth;
 use RuntimeException;
 use Illuminate\Support\Str;
 use Illuminate\Http\Response;
+<<<<<<< HEAD
 use Illuminate\Contracts\Session\Session;
+=======
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
 use Illuminate\Contracts\Auth\UserProvider;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\Auth\StatefulGuard;
@@ -153,7 +156,29 @@ class SessionGuard implements StatefulGuard, SupportsBasicAuth
     }
 
     /**
+<<<<<<< HEAD
      * Pull a user from the repository by its "remember me" cookie token.
+=======
+     * Get the ID for the currently authenticated user.
+     *
+     * @return int|null
+     */
+    public function id()
+    {
+        if ($this->loggedOut) {
+            return;
+        }
+
+        if ($this->user()) {
+            return $this->user()->getAuthIdentifier();
+        }
+
+        return $this->session->get($this->getName());
+    }
+
+    /**
+     * Pull a user from the repository by its recaller ID.
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
      *
      * @param  string  $recaller
      * @return mixed

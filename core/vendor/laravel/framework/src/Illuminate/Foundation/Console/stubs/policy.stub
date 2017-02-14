@@ -14,7 +14,11 @@ class DummyClass
      * Determine whether the user can view the dummyModel.
      *
      * @param  \DummyRootNamespaceUser  $user
+<<<<<<< HEAD
      * @param  \NamespacedDummyModel  $dummyModel
+=======
+     * @param  \NamespacedDummyModel  $dummyModelName
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
      * @return mixed
      */
     public function view(User $user, DummyModel $dummyModel)
@@ -37,7 +41,11 @@ class DummyClass
      * Determine whether the user can update the dummyModel.
      *
      * @param  \DummyRootNamespaceUser  $user
+<<<<<<< HEAD
      * @param  \NamespacedDummyModel  $dummyModel
+=======
+     * @param  \NamespacedDummyModel  $dummyModelName
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
      * @return mixed
      */
     public function update(User $user, DummyModel $dummyModel)
@@ -49,7 +57,11 @@ class DummyClass
      * Determine whether the user can delete the dummyModel.
      *
      * @param  \DummyRootNamespaceUser  $user
+<<<<<<< HEAD
      * @param  \NamespacedDummyModel  $dummyModel
+=======
+     * @param  \NamespacedDummyModel  $dummyModelName
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
      * @return mixed
      */
     public function delete(User $user, DummyModel $dummyModel)

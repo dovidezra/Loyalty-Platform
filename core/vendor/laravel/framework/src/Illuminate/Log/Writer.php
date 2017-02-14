@@ -10,7 +10,10 @@ use Monolog\Handler\SyslogHandler;
 use Monolog\Formatter\LineFormatter;
 use Monolog\Handler\ErrorLogHandler;
 use Monolog\Logger as MonologLogger;
+<<<<<<< HEAD
 use Illuminate\Log\Events\MessageLogged;
+=======
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
 use Monolog\Handler\RotatingFileHandler;
 use Illuminate\Contracts\Support\Jsonable;
 use Illuminate\Contracts\Events\Dispatcher;

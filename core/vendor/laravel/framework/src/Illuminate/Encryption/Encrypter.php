@@ -63,7 +63,10 @@ class Encrypter implements EncrypterContract
      * Encrypt the given value.
      *
      * @param  mixed  $value
+<<<<<<< HEAD
      * @param  bool  $serialize
+=======
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
      * @return string
      *
      * @throws \Illuminate\Contracts\Encryption\EncryptException
@@ -113,7 +116,10 @@ class Encrypter implements EncrypterContract
      * Decrypt the given value.
      *
      * @param  mixed  $payload
+<<<<<<< HEAD
      * @param  bool  $unserialize
+=======
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
      * @return string
      *
      * @throws \Illuminate\Contracts\Encryption\DecryptException

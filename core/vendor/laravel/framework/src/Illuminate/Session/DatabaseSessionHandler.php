@@ -148,6 +148,7 @@ class DatabaseSessionHandler implements SessionHandlerInterface, ExistenceAwareI
         }
     }
 
+<<<<<<< HEAD
     /**
      * Perform an update operation on the session ID.
      *
@@ -158,6 +159,11 @@ class DatabaseSessionHandler implements SessionHandlerInterface, ExistenceAwareI
     protected function performUpdate($sessionId, $payload)
     {
         return $this->getQuery()->where('id', $sessionId)->update($payload);
+=======
+        $this->exists = true;
+
+        return true;
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
     }
 
     /**

@@ -7,6 +7,7 @@ use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Collection as BaseCollection;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class BelongsToMany extends Relation
@@ -535,16 +536,26 @@ class BelongsToMany extends Relation
      * @param  array  $columns
      * @param  string  $pageName
      * @param  int|null  $page
+<<<<<<< HEAD
      * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
      */
     public function paginate($perPage = null, $columns = ['*'], $pageName = 'page', $page = null)
+=======
+     * @return \Illuminate\Contracts\Pagination\Paginator
+     */
+    public function simplePaginate($perPage = null, $columns = ['*'], $pageName = 'page', $page = null)
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
     {
         $this->query->addSelect($this->shouldSelect($columns));
 
+<<<<<<< HEAD
         return tap($this->query->paginate($perPage, $columns, $pageName, $page), function ($paginator) {
             $this->hydratePivotRelation($paginator->items());
         });
     }
+=======
+        $paginator = $this->query->simplePaginate($perPage, $columns, $pageName, $page);
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
 
     /**
      * Paginate the given query into a simple paginator.
@@ -850,6 +861,722 @@ class BelongsToMany extends Relation
     }
 
     /**
+<<<<<<< HEAD
+=======
+     * Save an array of new models and attach them to the parent model.
+     *
+     * @param  \Illuminate\Support\Collection|array  $models
+     * @param  array  $joinings
+     * @return array
+     */
+    public function saveMany($models, array $joinings = [])
+    {
+        foreach ($models as $key => $model) {
+            $this->save($model, (array) Arr::get($joinings, $key), false);
+        }
+
+        $this->touchIfTouching();
+
+        return $models;
+    }
+
+    /**
+     * Find a related model by its primary key.
+     *
+     * @param  mixed  $id
+     * @param  array  $columns
+     * @return \Illuminate\Database\Eloquent\Model|\Illuminate\Database\Eloquent\Collection|null
+     */
+    public function find($id, $columns = ['*'])
+    {
+        if (is_array($id)) {
+            return $this->findMany($id, $columns);
+        }
+
+        $this->where($this->getRelated()->getQualifiedKeyName(), '=', $id);
+
+        return $this->first($columns);
+    }
+
+    /**
+     * Find multiple related models by their primary keys.
+     *
+     * @param  mixed  $ids
+     * @param  array  $columns
+     * @return \Illuminate\Database\Eloquent\Collection
+     */
+    public function findMany($ids, $columns = ['*'])
+    {
+        if (empty($ids)) {
+            return $this->getRelated()->newCollection();
+        }
+
+        $this->whereIn($this->getRelated()->getQualifiedKeyName(), $ids);
+
+        return $this->get($columns);
+    }
+
+    /**
+     * Find a related model by its primary key or throw an exception.
+     *
+     * @param  mixed  $id
+     * @param  array  $columns
+     * @return \Illuminate\Database\Eloquent\Model|\Illuminate\Database\Eloquent\Collection
+     *
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
+     */
+    public function findOrFail($id, $columns = ['*'])
+    {
+        $result = $this->find($id, $columns);
+
+        if (is_array($id)) {
+            if (count($result) == count(array_unique($id))) {
+                return $result;
+            }
+        } elseif (! is_null($result)) {
+            return $result;
+        }
+
+        throw (new ModelNotFoundException)->setModel(get_class($this->parent));
+    }
+
+    /**
+     * Find a related model by its primary key or return new instance of the related model.
+     *
+     * @param  mixed  $id
+     * @param  array  $columns
+     * @return \Illuminate\Support\Collection|\Illuminate\Database\Eloquent\Model
+     */
+    public function findOrNew($id, $columns = ['*'])
+    {
+        if (is_null($instance = $this->find($id, $columns))) {
+            $instance = $this->getRelated()->newInstance();
+        }
+
+        return $instance;
+    }
+
+    /**
+     * Get the first related model record matching the attributes or instantiate it.
+     *
+     * @param  array  $attributes
+     * @return \Illuminate\Database\Eloquent\Model
+     */
+    public function firstOrNew(array $attributes)
+    {
+        if (is_null($instance = $this->where($attributes)->first())) {
+            $instance = $this->related->newInstance($attributes);
+        }
+
+        return $instance;
+    }
+
+    /**
+     * Get the first related record matching the attributes or create it.
+     *
+     * @param  array  $attributes
+     * @param  array  $joining
+     * @param  bool   $touch
+     * @return \Illuminate\Database\Eloquent\Model
+     */
+    public function firstOrCreate(array $attributes, array $joining = [], $touch = true)
+    {
+        if (is_null($instance = $this->where($attributes)->first())) {
+            $instance = $this->create($attributes, $joining, $touch);
+        }
+
+        return $instance;
+    }
+
+    /**
+     * Create or update a related record matching the attributes, and fill it with values.
+     *
+     * @param  array  $attributes
+     * @param  array  $values
+     * @param  array  $joining
+     * @param  bool   $touch
+     * @return \Illuminate\Database\Eloquent\Model
+     */
+    public function updateOrCreate(array $attributes, array $values = [], array $joining = [], $touch = true)
+    {
+        if (is_null($instance = $this->where($attributes)->first())) {
+            return $this->create($values, $joining, $touch);
+        }
+
+        $instance->fill($values);
+
+        $instance->save(['touch' => false]);
+
+        return $instance;
+    }
+
+    /**
+     * Create a new instance of the related model.
+     *
+     * @param  array  $attributes
+     * @param  array  $joining
+     * @param  bool   $touch
+     * @return \Illuminate\Database\Eloquent\Model
+     */
+    public function create(array $attributes, array $joining = [], $touch = true)
+    {
+        $instance = $this->related->newInstance($attributes);
+
+        // Once we save the related model, we need to attach it to the base model via
+        // through intermediate table so we'll use the existing "attach" method to
+        // accomplish this which will insert the record and any more attributes.
+        $instance->save(['touch' => false]);
+
+        $this->attach($instance->getKey(), $joining, $touch);
+
+        return $instance;
+    }
+
+    /**
+     * Create an array of new instances of the related models.
+     *
+     * @param  array  $records
+     * @param  array  $joinings
+     * @return array
+     */
+    public function createMany(array $records, array $joinings = [])
+    {
+        $instances = [];
+
+        foreach ($records as $key => $record) {
+            $instances[] = $this->create($record, (array) Arr::get($joinings, $key), false);
+        }
+
+        $this->touchIfTouching();
+
+        return $instances;
+    }
+
+    /**
+     * Toggles a model (or models) from the parent.
+     *
+     * Each existing model is detached, and non existing ones are attached.
+     *
+     * @param  mixed  $ids
+     * @param  bool   $touch
+     * @return array
+     */
+    public function toggle($ids, $touch = true)
+    {
+        $changes = [
+            'attached' => [], 'detached' => [],
+        ];
+
+        if ($ids instanceof Model) {
+            $ids = $ids->getKey();
+        }
+
+        if ($ids instanceof Collection) {
+            $ids = $ids->modelKeys();
+        }
+
+        // First we will execute a query to get all of the current attached IDs for
+        // the relationship, which will allow us to determine which of them will
+        // be attached and which of them will be detached from the join table.
+        $current = $this->newPivotQuery()
+                    ->pluck($this->otherKey)->all();
+
+        $records = $this->formatRecordsList((array) $ids);
+
+        // Next, we will determine which IDs should get removed from the join table
+        // by checking which of the given ID / records is in the list of current
+        // records. We will then remove all those rows from the joining table.
+        $detach = array_values(array_intersect(
+            $current, array_keys($records)
+        ));
+
+        if (count($detach) > 0) {
+            $this->detach($detach, false);
+
+            $changes['detached'] = $this->castKeys($detach);
+        }
+
+        // Finally, for all of the records that were not detached, we'll attach the
+        // records into the intermediate table. Then we'll add those attaches to
+        // the change list and be ready to return these results to the caller.
+        $attach = array_diff_key($records, array_flip($detach));
+
+        if (count($attach) > 0) {
+            $this->attach($attach, [], false);
+
+            $changes['attached'] = array_keys($attach);
+        }
+
+        if ($touch && (count($changes['attached']) || count($changes['detached']))) {
+            $this->touchIfTouching();
+        }
+
+        return $changes;
+    }
+
+    /**
+     * Sync the intermediate tables with a list of IDs without detaching.
+     *
+     * @param  \Illuminate\Database\Eloquent\Collection|array  $ids
+     * @return array
+     */
+    public function syncWithoutDetaching($ids)
+    {
+        return $this->sync($ids, false);
+    }
+
+    /**
+     * Sync the intermediate tables with a list of IDs or collection of models.
+     *
+     * @param  \Illuminate\Database\Eloquent\Collection|\Illuminate\Support\Collection|array  $ids
+     * @param  bool   $detaching
+     * @return array
+     */
+    public function sync($ids, $detaching = true)
+    {
+        $changes = [
+            'attached' => [], 'detached' => [], 'updated' => [],
+        ];
+
+        if ($ids instanceof Collection) {
+            $ids = $ids->modelKeys();
+        }
+
+        if ($ids instanceof BaseCollection) {
+            $ids = $ids->toArray();
+        }
+
+        // First we need to attach any of the associated models that are not currently
+        // in this joining table. We'll spin through the given IDs, checking to see
+        // if they exist in the array of current ones, and if not we will insert.
+        $current = $this->newPivotQuery()->pluck($this->otherKey)->all();
+
+        $records = $this->formatRecordsList($ids);
+
+        $detach = array_diff($current, array_keys($records));
+
+        // Next, we will take the differences of the currents and given IDs and detach
+        // all of the entities that exist in the "current" array but are not in the
+        // array of the new IDs given to the method which will complete the sync.
+        if ($detaching && count($detach) > 0) {
+            $this->detach($detach);
+
+            $changes['detached'] = $this->castKeys($detach);
+        }
+
+        // Now we are finally ready to attach the new records. Note that we'll disable
+        // touching until after the entire operation is complete so we don't fire a
+        // ton of touch operations until we are totally done syncing the records.
+        $changes = array_merge(
+            $changes, $this->attachNew($records, $current, false)
+        );
+
+        if (count($changes['attached']) || count($changes['updated'])) {
+            $this->touchIfTouching();
+        }
+
+        return $changes;
+    }
+
+    /**
+     * Format the sync/toggle list so that it is keyed by ID.
+     *
+     * @param  array  $records
+     * @return array
+     */
+    protected function formatRecordsList(array $records)
+    {
+        $results = [];
+
+        foreach ($records as $id => $attributes) {
+            if (! is_array($attributes)) {
+                list($id, $attributes) = [$attributes, []];
+            }
+
+            $results[$id] = $attributes;
+        }
+
+        return $results;
+    }
+
+    /**
+     * Attach all of the IDs that aren't in the current array.
+     *
+     * @param  array  $records
+     * @param  array  $current
+     * @param  bool   $touch
+     * @return array
+     */
+    protected function attachNew(array $records, array $current, $touch = true)
+    {
+        $changes = ['attached' => [], 'updated' => []];
+
+        foreach ($records as $id => $attributes) {
+            // If the ID is not in the list of existing pivot IDs, we will insert a new pivot
+            // record, otherwise, we will just update this existing record on this joining
+            // table, so that the developers will easily update these records pain free.
+            if (! in_array($id, $current)) {
+                $this->attach($id, $attributes, $touch);
+
+                $changes['attached'][] = is_numeric($id) ? (int) $id : (string) $id;
+            }
+
+            // Now we'll try to update an existing pivot record with the attributes that were
+            // given to the method. If the model is actually updated we will add it to the
+            // list of updated pivot records so we return them back out to the consumer.
+            elseif (count($attributes) > 0 &&
+                $this->updateExistingPivot($id, $attributes, $touch)) {
+                $changes['updated'][] = is_numeric($id) ? (int) $id : (string) $id;
+            }
+        }
+
+        return $changes;
+    }
+
+    /**
+     * Cast the given keys to integers if they are numeric and string otherwise.
+     *
+     * @param  array  $keys
+     * @return array
+     */
+    protected function castKeys(array $keys)
+    {
+        return (array) array_map(function ($v) {
+            return is_numeric($v) ? (int) $v : (string) $v;
+        }, $keys);
+    }
+
+    /**
+     * Update an existing pivot record on the table.
+     *
+     * @param  mixed  $id
+     * @param  array  $attributes
+     * @param  bool   $touch
+     * @return int
+     */
+    public function updateExistingPivot($id, array $attributes, $touch = true)
+    {
+        if (in_array($this->updatedAt(), $this->pivotColumns)) {
+            $attributes = $this->setTimestampsOnAttach($attributes, true);
+        }
+
+        $updated = $this->newPivotStatementForId($id)->update($attributes);
+
+        if ($touch) {
+            $this->touchIfTouching();
+        }
+
+        return $updated;
+    }
+
+    /**
+     * Attach a model to the parent.
+     *
+     * @param  mixed  $id
+     * @param  array  $attributes
+     * @param  bool   $touch
+     * @return void
+     */
+    public function attach($id, array $attributes = [], $touch = true)
+    {
+        if ($id instanceof Model) {
+            $id = $id->getKey();
+        }
+
+        if ($id instanceof Collection) {
+            $id = $id->modelKeys();
+        }
+
+        $query = $this->newPivotStatement();
+
+        $query->insert($this->createAttachRecords((array) $id, $attributes));
+
+        if ($touch) {
+            $this->touchIfTouching();
+        }
+    }
+
+    /**
+     * Create an array of records to insert into the pivot table.
+     *
+     * @param  array  $ids
+     * @param  array  $attributes
+     * @return array
+     */
+    protected function createAttachRecords($ids, array $attributes)
+    {
+        $records = [];
+
+        $timed = ($this->hasPivotColumn($this->createdAt()) ||
+                  $this->hasPivotColumn($this->updatedAt()));
+
+        // To create the attachment records, we will simply spin through the IDs given
+        // and create a new record to insert for each ID. Each ID may actually be a
+        // key in the array, with extra attributes to be placed in other columns.
+        foreach ($ids as $key => $value) {
+            $records[] = $this->attacher($key, $value, $attributes, $timed);
+        }
+
+        return $records;
+    }
+
+    /**
+     * Create a full attachment record payload.
+     *
+     * @param  int    $key
+     * @param  mixed  $value
+     * @param  array  $attributes
+     * @param  bool   $timed
+     * @return array
+     */
+    protected function attacher($key, $value, $attributes, $timed)
+    {
+        list($id, $extra) = $this->getAttachId($key, $value, $attributes);
+
+        // To create the attachment records, we will simply spin through the IDs given
+        // and create a new record to insert for each ID. Each ID may actually be a
+        // key in the array, with extra attributes to be placed in other columns.
+        $record = $this->createAttachRecord($id, $timed);
+
+        return array_merge($record, $extra);
+    }
+
+    /**
+     * Get the attach record ID and extra attributes.
+     *
+     * @param  mixed  $key
+     * @param  mixed  $value
+     * @param  array  $attributes
+     * @return array
+     */
+    protected function getAttachId($key, $value, array $attributes)
+    {
+        if (is_array($value)) {
+            return [$key, array_merge($value, $attributes)];
+        }
+
+        return [$value, $attributes];
+    }
+
+    /**
+     * Create a new pivot attachment record.
+     *
+     * @param  int   $id
+     * @param  bool  $timed
+     * @return array
+     */
+    protected function createAttachRecord($id, $timed)
+    {
+        $record[$this->foreignKey] = $this->parent->getKey();
+
+        $record[$this->otherKey] = $id;
+
+        // If the record needs to have creation and update timestamps, we will make
+        // them by calling the parent model's "freshTimestamp" method which will
+        // provide us with a fresh timestamp in this model's preferred format.
+        if ($timed) {
+            $record = $this->setTimestampsOnAttach($record);
+        }
+
+        return $record;
+    }
+
+    /**
+     * Set the creation and update timestamps on an attach record.
+     *
+     * @param  array  $record
+     * @param  bool   $exists
+     * @return array
+     */
+    protected function setTimestampsOnAttach(array $record, $exists = false)
+    {
+        $fresh = $this->parent->freshTimestamp();
+
+        if (! $exists && $this->hasPivotColumn($this->createdAt())) {
+            $record[$this->createdAt()] = $fresh;
+        }
+
+        if ($this->hasPivotColumn($this->updatedAt())) {
+            $record[$this->updatedAt()] = $fresh;
+        }
+
+        return $record;
+    }
+
+    /**
+     * Detach models from the relationship.
+     *
+     * @param  mixed  $ids
+     * @param  bool  $touch
+     * @return int
+     */
+    public function detach($ids = [], $touch = true)
+    {
+        if ($ids instanceof Model) {
+            $ids = $ids->getKey();
+        }
+
+        if ($ids instanceof Collection) {
+            $ids = $ids->modelKeys();
+        }
+
+        $query = $this->newPivotQuery();
+
+        // If associated IDs were passed to the method we will only delete those
+        // associations, otherwise all of the association ties will be broken.
+        // We'll return the numbers of affected rows when we do the deletes.
+        $ids = (array) $ids;
+
+        if (count($ids) > 0) {
+            $query->whereIn($this->otherKey, $ids);
+        }
+
+        // Once we have all of the conditions set on the statement, we are ready
+        // to run the delete on the pivot table. Then, if the touch parameter
+        // is true, we will go ahead and touch all related models to sync.
+        $results = $query->delete();
+
+        if ($touch) {
+            $this->touchIfTouching();
+        }
+
+        return $results;
+    }
+
+    /**
+     * If we're touching the parent model, touch.
+     *
+     * @return void
+     */
+    public function touchIfTouching()
+    {
+        if ($this->touchingParent()) {
+            $this->getParent()->touch();
+        }
+
+        if ($this->getParent()->touches($this->relationName)) {
+            $this->touch();
+        }
+    }
+
+    /**
+     * Determine if we should touch the parent on sync.
+     *
+     * @return bool
+     */
+    protected function touchingParent()
+    {
+        return $this->getRelated()->touches($this->guessInverseRelation());
+    }
+
+    /**
+     * Attempt to guess the name of the inverse of the relation.
+     *
+     * @return string
+     */
+    protected function guessInverseRelation()
+    {
+        return Str::camel(Str::plural(class_basename($this->getParent())));
+    }
+
+    /**
+     * Create a new query builder for the pivot table.
+     *
+     * @return \Illuminate\Database\Query\Builder
+     */
+    protected function newPivotQuery()
+    {
+        $query = $this->newPivotStatement();
+
+        foreach ($this->pivotWheres as $whereArgs) {
+            call_user_func_array([$query, 'where'], $whereArgs);
+        }
+
+        foreach ($this->pivotWhereIns as $whereArgs) {
+            call_user_func_array([$query, 'whereIn'], $whereArgs);
+        }
+
+        return $query->where($this->foreignKey, $this->parent->getKey());
+    }
+
+    /**
+     * Get a new plain query builder for the pivot table.
+     *
+     * @return \Illuminate\Database\Query\Builder
+     */
+    public function newPivotStatement()
+    {
+        return $this->query->getQuery()->newQuery()->from($this->table);
+    }
+
+    /**
+     * Get a new pivot statement for a given "other" ID.
+     *
+     * @param  mixed  $id
+     * @return \Illuminate\Database\Query\Builder
+     */
+    public function newPivotStatementForId($id)
+    {
+        return $this->newPivotQuery()->where($this->otherKey, $id);
+    }
+
+    /**
+     * Create a new pivot model instance.
+     *
+     * @param  array  $attributes
+     * @param  bool   $exists
+     * @return \Illuminate\Database\Eloquent\Relations\Pivot
+     */
+    public function newPivot(array $attributes = [], $exists = false)
+    {
+        $pivot = $this->related->newPivot($this->parent, $attributes, $this->table, $exists);
+
+        return $pivot->setPivotKeys($this->foreignKey, $this->otherKey);
+    }
+
+    /**
+     * Create a new existing pivot model instance.
+     *
+     * @param  array  $attributes
+     * @return \Illuminate\Database\Eloquent\Relations\Pivot
+     */
+    public function newExistingPivot(array $attributes = [])
+    {
+        return $this->newPivot($attributes, true);
+    }
+
+    /**
+     * Set the columns on the pivot table to retrieve.
+     *
+     * @param  array|mixed  $columns
+     * @return $this
+     */
+    public function withPivot($columns)
+    {
+        $columns = is_array($columns) ? $columns : func_get_args();
+
+        $this->pivotColumns = array_merge($this->pivotColumns, $columns);
+
+        return $this;
+    }
+
+    /**
+     * Specify that the pivot table has creation and update timestamps.
+     *
+     * @param  mixed  $createdAt
+     * @param  mixed  $updatedAt
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function withTimestamps($createdAt = null, $updatedAt = null)
+    {
+        $this->pivotCreatedAt = $createdAt;
+        $this->pivotUpdatedAt = $updatedAt;
+
+        return $this->withPivot($this->createdAt(), $this->updatedAt());
+    }
+
+    /**
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
      * Get the name of the "created at" column.
      *
      * @return string

@@ -7,7 +7,11 @@ use Carbon\Carbon;
 use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
 use Illuminate\Session\SessionManager;
+<<<<<<< HEAD
 use Illuminate\Contracts\Session\Session;
+=======
+use Illuminate\Session\SessionInterface;
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
 use Illuminate\Session\CookieSessionHandler;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Response;

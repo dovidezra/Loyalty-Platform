@@ -35,7 +35,11 @@ trait RegistersUsers
         $this->guard()->login($user);
 
         return $this->registered($request, $user)
+<<<<<<< HEAD
                         ?: redirect($this->redirectPath());
+=======
+            ?: redirect($this->redirectPath());
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
     }
 
     /**

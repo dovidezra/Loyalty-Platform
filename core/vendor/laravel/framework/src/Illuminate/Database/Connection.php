@@ -11,7 +11,10 @@ use DateTimeInterface;
 use Illuminate\Support\Arr;
 use Illuminate\Database\Query\Expression;
 use Illuminate\Contracts\Events\Dispatcher;
+<<<<<<< HEAD
 use Illuminate\Database\Events\QueryExecuted;
+=======
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
 use Doctrine\DBAL\Connection as DoctrineConnection;
 use Illuminate\Database\Query\Processors\Processor;
 use Illuminate\Database\Query\Builder as QueryBuilder;
@@ -505,10 +508,24 @@ class Connection implements ConnectionInterface
         return $this->withFreshQueryLog(function () use ($callback) {
             $this->pretending = true;
 
+<<<<<<< HEAD
             // Basically to make the database connection "pretend", we will just return
             // the default values for all the query methods, then we will return an
             // array of queries that were "executed" within the Closure callback.
             $callback($this);
+=======
+            // If we catch an exception, we will roll back so nothing gets messed
+            // up in the database. Then we'll re-throw the exception so it can
+            // be handled how the developer sees fit for their applications.
+            catch (Exception $e) {
+                if ($this->causedByDeadlock($e) && $this->transactions > 1) {
+                    --$this->transactions;
+
+                    throw $e;
+                }
+
+                $this->rollBack();
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
 
             $this->pretending = false;
 
@@ -524,6 +541,7 @@ class Connection implements ConnectionInterface
      */
     protected function withFreshQueryLog($callback)
     {
+<<<<<<< HEAD
         $loggingQueries = $this->loggingQueries;
 
         // First we will back up the value of the logging queries property and then
@@ -532,6 +550,29 @@ class Connection implements ConnectionInterface
         $this->enableQueryLog();
 
         $this->queryLog = [];
+=======
+        if ($this->transactions == 0) {
+            try {
+                $this->getPdo()->beginTransaction();
+            } catch (Exception $e) {
+                if ($this->causedByLostConnection($e)) {
+                    $this->reconnect();
+                    $this->pdo->beginTransaction();
+                } else {
+                    throw $e;
+                }
+            }
+        } elseif ($this->transactions >= 1 && $this->queryGrammar->supportsSavepoints()) {
+            $this->getPdo()->exec(
+                $this->queryGrammar->compileSavepoint('trans'.($this->transactions + 1))
+            );
+        }
+
+        ++$this->transactions;
+
+        $this->fireConnectionEvent('beganTransaction');
+    }
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
 
         // Now we'll execute this callback and capture the result. Once it has been
         // executed we will restore the value of query logging and give back the

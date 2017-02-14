@@ -2,7 +2,11 @@
  * Slovak translation
  * @author Jakub Ďuraš <jkblmr@gmail.com>
  * @author RobiNN <admin@robonetwork.cf>
+<<<<<<< HEAD
  * @version 2017-1-16
+=======
+ * @version 2016-11-21
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
  */
 (function(root, factory) {
 	if (typeof define === 'function' && define.amd) {
@@ -384,9 +388,12 @@
 			'emptyIncSearch'  : 'Výsledky vyhľadávania sú prázdne v aktuálnom zobrazení.\\Stlačením tlačidla [Enter] rozšírite vyhľadávanie cieľa.', // from v2.1.16 added 5.10.2016
 			'textLabel'       : 'Nápis textu', // from v2.1.17 added 13.10.2016
 			'minsLeft'        : '$1 minút ostáva', // from v2.1.17 added 13.11.2016
+<<<<<<< HEAD
 			'openAsEncoding'  : 'Otvoriť s vybratým kódovaním', // from v2.1.19 added 2.12.2016
 			'saveAsEncoding'  : 'Uložiť s vybratým kódovaním', // from v2.1.19 added 2.12.2016
 			'selectFolder'    : 'Vyberte priečinok', // from v2.1.20 added 13.12.2016
+=======
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
 
 			/********************************** mimetypes **********************************/
 			'kindUnknown'     : 'Neznámy',

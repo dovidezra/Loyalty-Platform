@@ -1,6 +1,10 @@
 /*!
  * elFinder - file manager for web
+<<<<<<< HEAD
  * Version 2.1.21 (2017-02-08)
+=======
+ * Version 2.1.20 (2017-01-11)
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
  * http://elfinder.org
  * 
  * Copyright 2009-2017, Studio 42
@@ -6906,7 +6910,11 @@ if (!Object.keys) {
  *
  * @type String
  **/
+<<<<<<< HEAD
 elFinder.prototype.version = '2.1.21';
+=======
+elFinder.prototype.version = '2.1.20';
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
 
 
 
@@ -13083,7 +13091,15 @@ $.fn.elfindernavbar = function(fm, opts) {
 			};
 
 			fm.one('cssloaded', function() {
+<<<<<<< HEAD
 				delta = nav.outerHeight() - nav.height();
+=======
+				var old = delta;
+				delta = nav.outerHeight() - nav.height();
+				if (old !== delta) {
+					fm.trigger('wzresize');
+				}
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
 			}).bind('wzresize', function() {
 				nav.height(wz.height() - delta);
 			});
@@ -14612,6 +14628,7 @@ $.fn.elfindertoolbar = function(fm, opts) {
 			dispre   = null,
 			uiCmdMapPrev = '',
 			l, i, cmd, panel, button, swipeHandle, autoHide, textLabel;
+<<<<<<< HEAD
 		
 		// correction of options.displayTextLabel
 		textLabel = fm.storage('toolbarTextLabel');
@@ -14621,6 +14638,17 @@ $.fn.elfindertoolbar = function(fm, opts) {
 			textLabel = (textLabel == 1);
 		}
 		
+=======
+		
+		// correction of options.displayTextLabel
+		textLabel = fm.storage('toolbarTextLabel');
+		if (textLabel === null) {
+			textLabel = (options.displayTextLabel && (! options.labelExcludeUA || ! options.labelExcludeUA.length || ! $.map(options.labelExcludeUA, function(v){ return fm.UA[v]? true : null; }).length));
+		} else {
+			textLabel = (textLabel == 1);
+		}
+		
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
 		// add contextmenu
 		self.on('contextmenu', function(e) {
 				e.stopPropagation();
@@ -15936,8 +15964,16 @@ $.fn.elfinderworkzone = function(fm) {
 			
 		parent.add(window).on('resize.' + fm.namespace, fitsize);
 		fm.one('cssloaded', function() {
+<<<<<<< HEAD
 			wdelta = wz.outerHeight(true) - wz.height();
 			fitsize();
+=======
+			var old = wdelta;
+			wdelta = wz.outerHeight(true) - wz.height();
+			if (old !== wdelta) {
+				fm.trigger('uiresize');
+			}
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
 		}).bind('uiresize', fitsize);
 	});
 	return this;
@@ -16730,7 +16766,11 @@ elFinder.prototype.commands.download = function() {
 										dfd.resolve();
 										setTimeout(function() {
 											iframe.remove();
+<<<<<<< HEAD
 										}, 20000); // give 20 sec file to be saved
+=======
+										}, fm.UA.Firefox? 20000 : 1000); // give mozilla 20 sec file to be saved
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
 									});
 							}
 						}

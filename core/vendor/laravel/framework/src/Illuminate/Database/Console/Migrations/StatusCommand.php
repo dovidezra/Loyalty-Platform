@@ -57,7 +57,20 @@ class StatusCommand extends BaseCommand
 
         $ran = $this->migrator->getRepository()->getRan();
 
+<<<<<<< HEAD
         if (count($migrations = $this->getStatusFor($ran)) > 0) {
+=======
+        $migrations = Collection::make($this->getAllMigrationFiles())
+                            ->map(function ($migration) use ($ran) {
+                                $migrationName = $this->migrator->getMigrationName($migration);
+
+                                return in_array($migrationName, $ran)
+                                        ? ['<info>Y</info>', $migrationName]
+                                        : ['<fg=red>N</fg=red>', $migrationName];
+                            });
+
+        if (count($migrations) > 0) {
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
             $this->table(['Ran?', 'Migration'], $migrations);
         } else {
             $this->error('No migrations found');

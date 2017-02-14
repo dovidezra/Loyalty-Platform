@@ -39,10 +39,16 @@ class RouteCompiler implements RouteCompilerInterface
     /**
      * {@inheritdoc}
      *
+<<<<<<< HEAD
      * @throws \InvalidArgumentException If a path variable is named _fragment
      * @throws \LogicException           If a variable is referenced more than once
      * @throws \DomainException          If a variable name starts with a digit or if it is too long to be successfully used as
      *                                   a PCRE subpattern.
+=======
+     * @throws \LogicException  If a variable is referenced more than once
+     * @throws \DomainException If a variable name starts with a digit or if it is too long to be successfully used as
+     *                          a PCRE subpattern.
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
      */
     public static function compile(Route $route)
     {
@@ -142,8 +148,13 @@ class RouteCompiler implements RouteCompilerInterface
                 throw new \DomainException(sprintf('Variable name "%s" cannot be longer than %s characters in route pattern "%s". Please use a shorter name.', $varName, self::VARIABLE_MAXIMUM_LENGTH, $pattern));
             }
 
+<<<<<<< HEAD
             if ($isSeparator && $precedingText !== $precedingChar) {
                 $tokens[] = array('text', substr($precedingText, 0, -strlen($precedingChar)));
+=======
+            if ($isSeparator && strlen($precedingText) > 1) {
+                $tokens[] = array('text', substr($precedingText, 0, -1));
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
             } elseif (!$isSeparator && strlen($precedingText) > 0) {
                 $tokens[] = array('text', $precedingText);
             }

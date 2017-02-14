@@ -124,7 +124,11 @@ class Collection implements ArrayAccess, Arrayable, Countable, IteratorAggregate
      * Get the mode of a given key.
      *
      * @param  mixed  $key
+<<<<<<< HEAD
      * @return array|null
+=======
+     * @return array
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
      */
     public function mode($key = null)
     {

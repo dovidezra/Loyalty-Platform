@@ -53,12 +53,17 @@ class Application extends SymfonyApplication implements ApplicationContract
         $this->setAutoExit(false);
         $this->setCatchExceptions(false);
 
+<<<<<<< HEAD
         $events->dispatch(new Events\ArtisanStarting($this));
+=======
+        $events->fire(new Events\ArtisanStarting($this));
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
 
         $this->bootstrap();
     }
 
     /**
+<<<<<<< HEAD
      * Determine the proper PHP executable.
      *
      * @return string
@@ -87,6 +92,17 @@ class Application extends SymfonyApplication implements ApplicationContract
     public static function formatCommandString($string)
     {
         return sprintf('%s %s %s', static::phpBinary(), static::artisanBinary(), $string);
+=======
+     * Bootstrap the console application.
+     *
+     * @return void
+     */
+    protected function bootstrap()
+    {
+        foreach (static::$bootstrappers as $bootstrapper) {
+            $bootstrapper($this);
+        }
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
     }
 
     /**
@@ -101,6 +117,7 @@ class Application extends SymfonyApplication implements ApplicationContract
     }
 
     /**
+<<<<<<< HEAD
      * Bootstrap the console application.
      *
      * @return void
@@ -113,6 +130,8 @@ class Application extends SymfonyApplication implements ApplicationContract
     }
 
     /*
+=======
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
      * Clear the console application bootstrappers.
      *
      * @return void

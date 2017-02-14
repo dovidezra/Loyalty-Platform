@@ -103,6 +103,68 @@ class ConnectionFactory
     }
 
     /**
+<<<<<<< HEAD
+=======
+     * Create a new Closure that resolves to a PDO instance.
+     *
+     * @param  array  $config
+     * @return \Closure
+     */
+    protected function createPdoResolver(array $config)
+    {
+        if (array_key_exists('host', $config)) {
+            return $this->createPdoResolverWithHosts($config);
+        }
+
+        return $this->createPdoResolverWithoutHosts($config);
+    }
+
+    /**
+     * Create a new Closure that resolves to a PDO instance with a specific host or an array of hosts.
+     *
+     * @param  array  $config
+     * @return \Closure
+     */
+    protected function createPdoResolverWithHosts(array $config)
+    {
+        return function () use ($config) {
+            $hosts = is_array($config['host']) ? $config['host'] : [$config['host']];
+
+            if (empty($hosts)) {
+                throw new InvalidArgumentException('Database hosts array is empty.');
+            }
+
+            foreach (Arr::shuffle($hosts) as $key => $host) {
+                $config['host'] = $host;
+
+                try {
+                    return $this->createConnector($config)->connect($config);
+                } catch (PDOException $e) {
+                    if (count($hosts) - 1 === $key && $this->container->bound(ExceptionHandler::class)) {
+                        $this->container->make(ExceptionHandler::class)->report($e);
+                    }
+                }
+            }
+
+            throw $e;
+        };
+    }
+
+    /**
+     * Create a new Closure that resolves to a PDO instance where there is no configured host.
+     *
+     * @param  array  $config
+     * @return \Closure
+     */
+    protected function createPdoResolverWithoutHosts(array $config)
+    {
+        return function () use ($config) {
+            return $this->createConnector($config)->connect($config);
+        };
+    }
+
+    /**
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
      * Get the read configuration for a read / write connection.
      *
      * @param  array  $config
@@ -110,9 +172,15 @@ class ConnectionFactory
      */
     protected function getReadConfig(array $config)
     {
+<<<<<<< HEAD
         return $this->mergeReadWriteConfig(
             $config, $this->getReadWriteConfig($config, 'read')
         );
+=======
+        $readConfig = $this->getReadWriteConfig($config, 'read');
+
+        return $this->mergeReadWriteConfig($config, $readConfig);
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
     }
 
     /**

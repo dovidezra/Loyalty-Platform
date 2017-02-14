@@ -129,8 +129,13 @@ class FactoryBuilder
      */
     public function make(array $attributes = [])
     {
+<<<<<<< HEAD
         if ($this->amount === null) {
             return $this->makeInstance($attributes);
+=======
+        if ($this->amount < 1) {
+            return (new $this->class)->newCollection();
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
         }
 
         if ($this->amount < 1) {

@@ -7,7 +7,10 @@ use Illuminate\Queue\Connectors\SqsConnector;
 use Illuminate\Queue\Connectors\NullConnector;
 use Illuminate\Queue\Connectors\SyncConnector;
 use Illuminate\Queue\Connectors\RedisConnector;
+<<<<<<< HEAD
 use Illuminate\Contracts\Debug\ExceptionHandler;
+=======
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
 use Illuminate\Queue\Connectors\DatabaseConnector;
 use Illuminate\Queue\Failed\NullFailedJobProvider;
 use Illuminate\Queue\Connectors\BeanstalkdConnector;

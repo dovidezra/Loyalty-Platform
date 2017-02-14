@@ -252,4 +252,14 @@ abstract class Grammar extends BaseGrammar
     {
         return $this->transactions;
     }
+
+    /**
+     * Check if this Grammar supports schema changes wrapped in a transaction.
+     *
+     * @return bool
+     */
+    public function supportsSchemaTransactions()
+    {
+        return $this->transactions;
+    }
 }

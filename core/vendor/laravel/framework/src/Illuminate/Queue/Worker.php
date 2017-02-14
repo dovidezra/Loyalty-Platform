@@ -101,6 +101,7 @@ class Worker
                 $this->manager->connection($connectionName), $queue
             );
 
+<<<<<<< HEAD
             $this->registerTimeoutHandler($job, $options);
 
             // If the daemon should run (not in maintenance mode, etc.), then we can run
@@ -108,6 +109,10 @@ class Worker
             // worker so no more jobs are processed until they should be processed.
             if ($job) {
                 $this->runJob($job, $connectionName, $options);
+=======
+            if ($this->daemonShouldRun($options)) {
+                $this->runNextJob($connectionName, $queue, $options);
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
             } else {
                 $this->sleep($options->sleep);
             }
@@ -128,6 +133,7 @@ class Worker
      */
     protected function registerTimeoutHandler($job, WorkerOptions $options)
     {
+<<<<<<< HEAD
         if ($options->timeout > 0 && $this->supportsAsyncSignals()) {
             // We will register a signal handler for the alarm signal so that we can kill this
             // process if it is running too long because it has frozen. This uses the async
@@ -137,6 +143,10 @@ class Worker
             });
 
             pcntl_alarm($this->timeoutForJob($job, $options) + $options->sleep);
+=======
+        if ($options->timeout == 0 || version_compare(PHP_VERSION, '7.1.0') < 0 || ! extension_loaded('pcntl')) {
+            return;
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
         }
     }
 
@@ -152,6 +162,7 @@ class Worker
         return $job && ! is_null($job->timeout()) ? $job->timeout() : $options->timeout;
     }
 
+<<<<<<< HEAD
     /**
      * Determine if the daemon should process on this iteration.
      *
@@ -164,6 +175,12 @@ class Worker
             $this->paused ||
             $this->events->until(new Events\Looping) === false);
     }
+=======
+        pcntl_signal(SIGALRM, function () {
+            if (extension_loaded('posix')) {
+                posix_kill(getmypid(), SIGKILL);
+            }
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
 
     /**
      * Pause the worker for the current loop.
@@ -183,12 +200,27 @@ class Worker
      * Stop the process if necessary.
      *
      * @param  WorkerOptions  $options
+<<<<<<< HEAD
      * @param  int  $lastRestart
      */
     protected function stopIfNecessary(WorkerOptions $options, $lastRestart)
     {
         if ($this->shouldQuit) {
             $this->kill();
+=======
+     * @return bool
+     */
+    protected function daemonShouldRun(WorkerOptions $options)
+    {
+        if (($this->manager->isDownForMaintenance() && ! $options->force) ||
+            $this->events->until('illuminate.queue.looping') === false) {
+            // If the application is down for maintenance or doesn't want the queues to run
+            // we will sleep for one second just in case the developer has it set to not
+            // sleep at all. This just prevents CPU from maxing out in this situation.
+            $this->sleep(1);
+
+            return false;
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
         }
 
         if ($this->memoryExceeded($options->memory)) {
@@ -389,7 +421,24 @@ class Worker
      */
     protected function failJob($connectionName, $job, $e)
     {
+<<<<<<< HEAD
         return FailingJob::handle($connectionName, $job, $e);
+=======
+        if ($job->isDeleted()) {
+            return;
+        }
+
+        try {
+            // If the job has failed, we will delete it, call the "failed" method and then call
+            // an event indicating the job has failed so it can be logged if needed. This is
+            // to allow every developer to better keep monitor of their failed queue jobs.
+            $job->delete();
+
+            $job->failed($e);
+        } finally {
+            $this->raiseFailedJobEvent($connectionName, $job, $e);
+        }
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
     }
 
     /**

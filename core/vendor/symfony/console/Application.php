@@ -740,8 +740,11 @@ class Application
      * @param int $height The height
      *
      * @return $this
+<<<<<<< HEAD
      *
      * @deprecated since version 3.2, to be removed in 4.0. Set the COLUMNS and LINES env vars instead.
+=======
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
      */
     public function setTerminalDimensions($width, $height)
     {

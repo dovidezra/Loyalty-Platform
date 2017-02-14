@@ -209,6 +209,7 @@ class TextDescriptor extends Descriptor
                 }
 
                 foreach ($namespace['commands'] as $name) {
+<<<<<<< HEAD
                     if (isset($commands[$name])) {
                         $this->writeText("\n");
                         $spacingWidth = $width - Helper::strlen($name);
@@ -216,6 +217,11 @@ class TextDescriptor extends Descriptor
                         $commandAliases = $this->getCommandAliasesText($command);
                         $this->writeText(sprintf('  <info>%s</info>%s%s', $name, str_repeat(' ', $spacingWidth), $commandAliases.$command->getDescription()), $options);
                     }
+=======
+                    $this->writeText("\n");
+                    $spacingWidth = $width - Helper::strlen($name);
+                    $this->writeText(sprintf('  <info>%s</info>%s%s', $name, str_repeat(' ', $spacingWidth), $description->getCommand($name)->getDescription()), $options);
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
                 }
             }
 
@@ -304,7 +310,11 @@ class TextDescriptor extends Descriptor
         $totalWidth = 0;
         foreach ($options as $option) {
             // "-" + shortcut + ", --" + name
+<<<<<<< HEAD
             $nameLength = 1 + max(Helper::strlen($option->getShortcut()), 1) + 4 + Helper::strlen($option->getName());
+=======
+            $nameLength = 1 + max(strlen($option->getShortcut()), 1) + 4 + Helper::strlen($option->getName());
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
 
             if ($option->acceptValue()) {
                 $valueLength = 1 + Helper::strlen($option->getName()); // = + value

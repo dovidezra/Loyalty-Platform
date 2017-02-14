@@ -46,6 +46,16 @@ class Mailer implements MailerContract, MailQueueContract
 
     /**
      * The global reply-to address and name.
+<<<<<<< HEAD
+=======
+     *
+     * @var array
+     */
+    protected $replyTo;
+
+    /**
+     * The global to address and name.
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
      *
      * @var array
      */
@@ -202,6 +212,7 @@ class Mailer implements MailerContract, MailQueueContract
         // message. This is primarily useful during local development in which each
         // message should be delivered into a single mail address for inspection.
         if (isset($this->to['address'])) {
+<<<<<<< HEAD
             $this->setGlobalTo($message);
         }
 
@@ -220,6 +231,11 @@ class Mailer implements MailerContract, MailQueueContract
     {
         if (is_string($view)) {
             return [$view, null, null];
+=======
+            $message->to($this->to['address'], $this->to['name'], true);
+            $message->cc($this->to['address'], $this->to['name'], true);
+            $message->bcc($this->to['address'], $this->to['name'], true);
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
         }
 
         // If the given view is an array with numeric keys, we will just assume that
@@ -429,7 +445,35 @@ class Mailer implements MailerContract, MailQueueContract
     /**
      * Force the transport to re-connect.
      *
+<<<<<<< HEAD
      * This will prevent errors in daemon queue situations.
+=======
+     * @return \Illuminate\Mail\Message
+     */
+    protected function createMessage()
+    {
+        $message = new Message(new Swift_Message);
+
+        // If a global from address has been specified we will set it on every message
+        // instances so the developer does not have to repeat themselves every time
+        // they create a new message. We will just go ahead and push the address.
+        if (! empty($this->from['address'])) {
+            $message->from($this->from['address'], $this->from['name']);
+        }
+
+        // When a global reply address was specified we will set this on every message
+        // instances so the developer does not have to repeat themselves every time
+        // they create a new message. We will just go ahead and push the address.
+        if (! empty($this->replyTo['address'])) {
+            $message->replyTo($this->replyTo['address'], $this->replyTo['name']);
+        }
+
+        return $message;
+    }
+
+    /**
+     * Render the given view.
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
      *
      * @return void
      */

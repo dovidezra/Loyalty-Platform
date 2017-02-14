@@ -324,7 +324,167 @@ class Event
     }
 
     /**
+<<<<<<< HEAD
      * Send the output of the command to a given location.
+=======
+     * Determine if the event runs in the given environment.
+     *
+     * @param  string  $environment
+     * @return bool
+     */
+    public function runsInEnvironment($environment)
+    {
+        return empty($this->environments) || in_array($environment, $this->environments);
+    }
+
+    /**
+     * Determine if the event runs in maintenance mode.
+     *
+     * @return bool
+     */
+    public function runsInMaintenanceMode()
+    {
+        return $this->evenInMaintenanceMode;
+    }
+
+    /**
+     * The Cron expression representing the event's frequency.
+     *
+     * @param  string  $expression
+     * @return $this
+     */
+    public function cron($expression)
+    {
+        $this->expression = $expression;
+
+        return $this;
+    }
+
+    /**
+     * Schedule the event to run hourly.
+     *
+     * @return $this
+     */
+    public function hourly()
+    {
+        return $this->spliceIntoPosition(1, 0);
+    }
+
+    /**
+     * Schedule the event to run hourly at a given offset in the hour.
+     *
+     * @param  int  $offset
+     * @return $this
+     */
+    public function hourlyAt($offset)
+    {
+        return $this->spliceIntoPosition(1, $offset);
+    }
+
+    /**
+     * Schedule the event to run daily.
+     *
+     * @return $this
+     */
+    public function daily()
+    {
+        return $this->spliceIntoPosition(1, 0)
+                    ->spliceIntoPosition(2, 0);
+    }
+
+    /**
+     * Schedule the command at a given time.
+     *
+     * @param  string  $time
+     * @return $this
+     */
+    public function at($time)
+    {
+        return $this->dailyAt($time);
+    }
+
+    /**
+     * Schedule the event to run daily at a given time (10:00, 19:30, etc).
+     *
+     * @param  string  $time
+     * @return $this
+     */
+    public function dailyAt($time)
+    {
+        $segments = explode(':', $time);
+
+        return $this->spliceIntoPosition(2, (int) $segments[0])
+                    ->spliceIntoPosition(1, count($segments) == 2 ? (int) $segments[1] : '0');
+    }
+
+    /**
+     * Schedule the event to run twice daily.
+     *
+     * @param  int  $first
+     * @param  int  $second
+     * @return $this
+     */
+    public function twiceDaily($first = 1, $second = 13)
+    {
+        $hours = $first.','.$second;
+
+        return $this->spliceIntoPosition(1, 0)
+                    ->spliceIntoPosition(2, $hours);
+    }
+
+    /**
+     * Schedule the event to run only on weekdays.
+     *
+     * @return $this
+     */
+    public function weekdays()
+    {
+        return $this->spliceIntoPosition(5, '1-5');
+    }
+
+    /**
+     * Schedule the event to run only on Mondays.
+     *
+     * @return $this
+     */
+    public function mondays()
+    {
+        return $this->days(1);
+    }
+
+    /**
+     * Schedule the event to run only on Tuesdays.
+     *
+     * @return $this
+     */
+    public function tuesdays()
+    {
+        return $this->days(2);
+    }
+
+    /**
+     * Schedule the event to run only on Wednesdays.
+     *
+     * @return $this
+     */
+    public function wednesdays()
+    {
+        return $this->days(3);
+    }
+
+    /**
+     * Schedule the event to run only on Thursdays.
+     *
+     * @return $this
+     */
+    public function thursdays()
+    {
+        return $this->days(4);
+    }
+
+    /**
+     * Schedule the event to run only on Fridays.
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
      *
      * @param  string  $location
      * @param  bool  $append
@@ -549,6 +709,123 @@ class Event
     }
 
     /**
+<<<<<<< HEAD
+=======
+     * Send the output of the command to a given location.
+     *
+     * @param  string  $location
+     * @param  bool  $append
+     * @return $this
+     */
+    public function sendOutputTo($location, $append = false)
+    {
+        $this->output = $location;
+
+        $this->shouldAppendOutput = $append;
+
+        return $this;
+    }
+
+    /**
+     * Append the output of the command to a given location.
+     *
+     * @param  string  $location
+     * @return $this
+     */
+    public function appendOutputTo($location)
+    {
+        return $this->sendOutputTo($location, true);
+    }
+
+    /**
+     * E-mail the results of the scheduled operation.
+     *
+     * @param  array|mixed  $addresses
+     * @param  bool  $onlyIfOutputExists
+     * @return $this
+     *
+     * @throws \LogicException
+     */
+    public function emailOutputTo($addresses, $onlyIfOutputExists = false)
+    {
+        if (is_null($this->output) || $this->output == $this->getDefaultOutput()) {
+            throw new LogicException('Must direct output to a file in order to e-mail results.');
+        }
+
+        $addresses = is_array($addresses) ? $addresses : func_get_args();
+
+        return $this->then(function (Mailer $mailer) use ($addresses, $onlyIfOutputExists) {
+            $this->emailOutput($mailer, $addresses, $onlyIfOutputExists);
+        });
+    }
+
+    /**
+     * E-mail the results of the scheduled operation if it produces output.
+     *
+     * @param  array|mixed  $addresses
+     * @return $this
+     *
+     * @throws \LogicException
+     */
+    public function emailWrittenOutputTo($addresses)
+    {
+        return $this->emailOutputTo($addresses, true);
+    }
+
+    /**
+     * E-mail the output of the event to the recipients.
+     *
+     * @param  \Illuminate\Contracts\Mail\Mailer  $mailer
+     * @param  array  $addresses
+     * @param  bool  $onlyIfOutputExists
+     * @return void
+     */
+    protected function emailOutput(Mailer $mailer, $addresses, $onlyIfOutputExists = false)
+    {
+        $text = file_get_contents($this->output);
+
+        if ($onlyIfOutputExists && empty($text)) {
+            return;
+        }
+
+        $mailer->raw($text, function ($m) use ($addresses) {
+            $m->subject($this->getEmailSubject());
+
+            foreach ($addresses as $address) {
+                $m->to($address);
+            }
+        });
+    }
+
+    /**
+     * Get the e-mail subject line for output results.
+     *
+     * @return string
+     */
+    protected function getEmailSubject()
+    {
+        if ($this->description) {
+            return $this->description;
+        }
+
+        return 'Scheduled Job Output';
+    }
+
+    /**
+     * Register a callback to ping a given URL before the job runs.
+     *
+     * @param  string  $url
+     * @return $this
+     */
+    public function pingBefore($url)
+    {
+        return $this->before(function () use ($url) {
+            (new HttpClient)->get($url);
+        });
+    }
+
+    /**
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
      * Register a callback to be called before the operation.
      *
      * @param  \Closure  $callback

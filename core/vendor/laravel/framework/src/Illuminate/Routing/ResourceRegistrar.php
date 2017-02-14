@@ -156,6 +156,125 @@ class ResourceRegistrar
     }
 
     /**
+<<<<<<< HEAD
+=======
+     * Get the base resource URI for a given resource.
+     *
+     * @param  string  $resource
+     * @return string
+     */
+    public function getResourceUri($resource)
+    {
+        if (! Str::contains($resource, '.')) {
+            return $resource;
+        }
+
+        // Once we have built the base URI, we'll remove the parameter holder for this
+        // base resource name so that the individual route adders can suffix these
+        // paths however they need to, as some do not have any parameters at all.
+        $segments = explode('.', $resource);
+
+        $uri = $this->getNestedResourceUri($segments);
+
+        return str_replace('/{'.$this->getResourceWildcard(end($segments)).'}', '', $uri);
+    }
+
+    /**
+     * Get the URI for a nested resource segment array.
+     *
+     * @param  array   $segments
+     * @return string
+     */
+    protected function getNestedResourceUri(array $segments)
+    {
+        // We will spin through the segments and create a place-holder for each of the
+        // resource segments, as well as the resource itself. Then we should get an
+        // entire string for the resource URI that contains all nested resources.
+        return implode('/', array_map(function ($s) {
+            return $s.'/{'.$this->getResourceWildcard($s).'}';
+        }, $segments));
+    }
+
+    /**
+     * Get the action array for a resource route.
+     *
+     * @param  string  $resource
+     * @param  string  $controller
+     * @param  string  $method
+     * @param  array   $options
+     * @return array
+     */
+    protected function getResourceAction($resource, $controller, $method, $options)
+    {
+        $name = $this->getResourceName($resource, $method, $options);
+
+        return ['as' => $name, 'uses' => $controller.'@'.$method];
+    }
+
+    /**
+     * Get the name for a given resource.
+     *
+     * @param  string  $resource
+     * @param  string  $method
+     * @param  array   $options
+     * @return string
+     */
+    protected function getResourceName($resource, $method, $options)
+    {
+        if (isset($options['names'])) {
+            if (is_string($options['names'])) {
+                $resource = $options['names'];
+            } elseif (isset($options['names'][$method])) {
+                return $options['names'][$method];
+            }
+        }
+
+        // If a global prefix has been assigned to all names for this resource, we will
+        // grab that so we can prepend it onto the name when we create this name for
+        // the resource action. Otherwise we'll just use an empty string for here.
+        $prefix = isset($options['as']) ? $options['as'].'.' : '';
+
+        if (! $this->router->hasGroupStack()) {
+            return $prefix.$resource.'.'.$method;
+        }
+
+        return $this->getGroupResourceName($prefix, $resource, $method);
+    }
+
+    /**
+     * Get the resource name for a grouped resource.
+     *
+     * @param  string  $prefix
+     * @param  string  $resource
+     * @param  string  $method
+     * @return string
+     */
+    protected function getGroupResourceName($prefix, $resource, $method)
+    {
+        return trim("{$prefix}{$resource}.{$method}", '.');
+    }
+
+    /**
+     * Format a resource parameter for usage.
+     *
+     * @param  string  $value
+     * @return string
+     */
+    public function getResourceWildcard($value)
+    {
+        if (isset($this->parameters[$value])) {
+            $value = $this->parameters[$value];
+        } elseif (isset(static::$parameterMap[$value])) {
+            $value = static::$parameterMap[$value];
+        } elseif ($this->parameters === 'singular' || static::$singularParameters) {
+            $value = Str::singular($value);
+        }
+
+        return str_replace('-', '_', $value);
+    }
+
+    /**
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
      * Add the index method for a resourceful route.
      *
      * @param  string  $name

@@ -183,6 +183,10 @@ class MessageCatalogue implements MessageCatalogueInterface, MetadataAwareInterf
             foreach ($catalogue->getResources() as $resource) {
                 $c->addResource($resource);
             }
+
+            foreach ($catalogue->getResources() as $resource) {
+                $c->addResource($resource);
+            }
         } while ($c = $c->parent);
 
         $catalogue->parent = $this;

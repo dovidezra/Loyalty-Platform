@@ -48,12 +48,22 @@ class Redirector
      *
      * @param  int    $status
      * @param  array  $headers
+<<<<<<< HEAD
      * @param  mixed  $fallback
+=======
+     * @param  string  $fallback
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
      * @return \Illuminate\Http\RedirectResponse
      */
     public function back($status = 302, $headers = [], $fallback = false)
     {
+<<<<<<< HEAD
         return $this->createRedirect($this->generator->previous($fallback), $status, $headers);
+=======
+        $back = $this->generator->previous($fallback);
+
+        return $this->createRedirect($back, $status, $headers);
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
     }
 
     /**

@@ -1,6 +1,7 @@
 Changelog
 =========
 
+<<<<<<< HEAD
 5.4.6 (2017-02-13)
 ------------------
 
@@ -20,6 +21,12 @@ Changelog
    Prior to 5.4.5, the mail transport (Swift_Transport_MailTransport) was vulnerable to passing
    arbitrary shell arguments if the "From", "ReturnPath" or "Sender" header came
    from a non-trusted source, potentially allowing Remote Code Execution
+=======
+5.4.5 (2016-XX-XX)
+------------------
+
+ * fixed CVE-2016-10033 and CVE-2016-10045
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
  * deprecated the mail transport
 
 5.4.4 (2016-11-23)

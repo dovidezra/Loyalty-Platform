@@ -52,6 +52,8 @@ class MandrillTransport extends Transport
 
         $this->sendPerformed($message);
 
+        $this->sendPerformed($message);
+
         return $this->numberOfRecipients($message);
     }
 

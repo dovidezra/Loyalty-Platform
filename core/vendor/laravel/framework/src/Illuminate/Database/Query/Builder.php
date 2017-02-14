@@ -1790,7 +1790,11 @@ class Builder
     }
 
     /**
+<<<<<<< HEAD
      * Run a pagiantion count query.
+=======
+     * Backup then remove some fields for the pagination count.
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
      *
      * @param  array  $columns
      * @return array
@@ -1842,6 +1846,7 @@ class Builder
      */
     public function chunk($count, callable $callback)
     {
+<<<<<<< HEAD
         $this->enforceOrderBy();
 
         $page = 1;
@@ -1850,6 +1855,11 @@ class Builder
             // We'll execute the query for the given page and get the results. If there are
             // no results we can just break and return from here. When there are results
             // we will call the callback with the current chunk of these results here.
+=======
+        $page = 1;
+
+        do {
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
             $results = $this->forPage($page, $count)->get();
 
             $countResults = $results->count();
@@ -1889,9 +1899,12 @@ class Builder
         do {
             $clone = clone $this;
 
+<<<<<<< HEAD
             // We'll execute the query for the given page and get the results. If there are
             // no results we can just break and return from here. When there are results
             // we will call the callback with the current chunk of these results here.
+=======
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
             $results = $clone->forPageAfterId($count, $lastId, $column)->get();
 
             $countResults = $results->count();
@@ -1900,10 +1913,14 @@ class Builder
                 break;
             }
 
+<<<<<<< HEAD
             // On each chunk result set, we will pass them to the callback and then let the
             // developer take care of everything within the callback, which allows us to
             // keep the memory low for spinning through large result sets for working.
             if ($callback($results) === false) {
+=======
+            if (call_user_func($callback, $results) === false) {
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
                 return false;
             }
 
@@ -1936,6 +1953,13 @@ class Builder
      */
     public function each(callable $callback, $count = 1000)
     {
+<<<<<<< HEAD
+=======
+        if (empty($this->orders) && empty($this->unionOrders)) {
+            throw new RuntimeException('You must specify an orderBy clause when using the "each" function.');
+        }
+
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
         return $this->chunk($count, function ($results) use ($callback) {
             foreach ($results as $key => $value) {
                 if ($callback($value, $key) === false) {

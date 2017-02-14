@@ -70,6 +70,7 @@ class SyncJob extends Job implements JobContract
     }
 
     /**
+<<<<<<< HEAD
      * Get the raw body string for the job.
      *
      * @return string
@@ -80,6 +81,8 @@ class SyncJob extends Job implements JobContract
     }
 
     /**
+=======
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
      * Get the name of the queue the job belongs to.
      *
      * @return string

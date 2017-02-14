@@ -323,6 +323,7 @@ class SqlServerGrammar extends Grammar
     }
 
     /**
+<<<<<<< HEAD
      * Get the table and alias for the given table.
      *
      * @param  string  $table
@@ -340,6 +341,8 @@ class SqlServerGrammar extends Grammar
     }
 
     /**
+=======
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
      * Prepare the bindings for an update statement.
      *
      * @param  array  $bindings
@@ -348,9 +351,12 @@ class SqlServerGrammar extends Grammar
      */
     public function prepareBindingsForUpdate(array $bindings, array $values)
     {
+<<<<<<< HEAD
         // Update statements with joins in SQL Servers utilize an unique syntax. We need to
         // take all of the bindings and put them on the end of this array since they are
         // added to the end of the "where" clause statements as typical where clauses.
+=======
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
         $bindingsWithoutJoin = Arr::except($bindings, 'join');
 
         return array_values(
@@ -359,6 +365,7 @@ class SqlServerGrammar extends Grammar
     }
 
     /**
+<<<<<<< HEAD
      * Determine if the grammar supports savepoints.
      *
      * @return bool
@@ -390,6 +397,8 @@ class SqlServerGrammar extends Grammar
     }
 
     /**
+=======
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
      * Wrap a table in keyword identifiers.
      *
      * @param  \Illuminate\Database\Query\Expression|string  $table

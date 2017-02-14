@@ -133,7 +133,11 @@ class SlackAttachment
     /**
      * Add a field to the attachment.
      *
+<<<<<<< HEAD
      * @param  \Closure|string $title
+=======
+     * @param  \Closure|array $title
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
      * @param  string $content
      * @return $this
      */

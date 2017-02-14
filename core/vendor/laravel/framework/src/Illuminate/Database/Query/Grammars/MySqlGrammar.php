@@ -116,9 +116,12 @@ class MySqlGrammar extends Grammar
 
         $sql = rtrim("update {$table}{$joins} set $columns $where");
 
+<<<<<<< HEAD
         // If the query has an order by clause we will compile it since MySQL supports
         // order bys on update statements. We'll compile them using the typical way
         // of compiling order bys. Then they will be appended to the SQL queries.
+=======
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
         if (! empty($query->orders)) {
             $sql .= ' '.$this->compileOrders($query, $query->orders);
         }
@@ -179,10 +182,19 @@ class MySqlGrammar extends Grammar
      */
     public function prepareBindingsForUpdate(array $bindings, array $values)
     {
+<<<<<<< HEAD
         $values = collect($values)->reject(function ($value, $column) {
             return $this->isJsonSelector($column) &&
                 in_array(gettype($value), ['boolean', 'integer', 'double']);
         })->all();
+=======
+        foreach ($values as $column => $value) {
+            if ($this->isJsonSelector($column) &&
+                in_array(gettype($value), ['boolean', 'integer', 'double'])) {
+                unset($values[$column]);
+            }
+        }
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
 
         return parent::prepareBindingsForUpdate($bindings, $values);
     }
@@ -216,12 +228,18 @@ class MySqlGrammar extends Grammar
     {
         $sql = trim("delete from {$table} {$where}");
 
+<<<<<<< HEAD
         // When using MySQL, delete statements may contain order by statements and limits
         // so we will compile both of those here. Once we have finished compiling this
         // we will return the completed SQL statement so it will be executed for us.
         if (! empty($query->orders)) {
             $sql .= ' '.$this->compileOrders($query, $query->orders);
         }
+=======
+            if (! empty($query->orders)) {
+                $sql .= ' '.$this->compileOrders($query, $query->orders);
+            }
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
 
         if (isset($query->limit)) {
             $sql .= ' '.$this->compileLimit($query, $query->limit);
@@ -279,9 +297,17 @@ class MySqlGrammar extends Grammar
 
         $field = $this->wrapValue(array_shift($path));
 
+<<<<<<< HEAD
         return sprintf('%s->\'$.%s\'', $field, collect($path)->map(function ($part) {
             return '"'.$part.'"';
         })->implode('.'));
+=======
+        $path = collect($path)->map(function ($part) {
+            return '"'.$part.'"';
+        })->implode('.');
+
+        return sprintf('%s->\'$.%s\'', $field, $path);
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
     }
 
     /**

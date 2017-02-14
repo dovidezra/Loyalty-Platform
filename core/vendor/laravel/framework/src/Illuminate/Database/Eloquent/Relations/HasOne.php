@@ -10,13 +10,35 @@ class HasOne extends HasOneOrMany
     /**
      * Indicates if a default model instance should be used.
      *
+<<<<<<< HEAD
      * Alternatively, may be a Closure or array.
      *
      * @var \Closure|array|bool
+=======
+     * Alternatively, may be a Closure to execute to retrieve default value.
+     *
+     * @var \Closure|bool
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
      */
     protected $withDefault;
 
     /**
+<<<<<<< HEAD
+=======
+     * Return a new model instance in case the relationship does not exist.
+     *
+     * @param  \Closure|bool  $callback
+     * @return $this
+     */
+    public function withDefault($callback = true)
+    {
+        $this->withDefault = $callback;
+
+        return $this;
+    }
+
+    /**
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
      * Get the results of the relationship.
      *
      * @return mixed
@@ -83,6 +105,7 @@ class HasOne extends HasOneOrMany
     }
 
     /**
+<<<<<<< HEAD
      * Return a new model instance in case the relationship does not exist.
      *
      * @param  \Closure|array|bool  $callback
@@ -93,5 +116,31 @@ class HasOne extends HasOneOrMany
         $this->withDefault = $callback;
 
         return $this;
+=======
+     * Get the default value for this relation.
+     *
+     * @param  \Illuminate\Database\Eloquent\Model  $model
+     * @return \Illuminate\Database\Eloquent\Model|null
+     */
+    protected function getDefaultFor(Model $model)
+    {
+        if (! $this->withDefault) {
+            return;
+        }
+
+        $instance = $this->related->newInstance()->setAttribute(
+            $this->getPlainForeignKey(), $model->getAttribute($this->localKey)
+        );
+
+        if (is_callable($this->withDefault)) {
+            return call_user_func($this->withDefault, $instance) ?: $instance;
+        }
+
+        if (is_array($this->withDefault)) {
+            $instance->forceFill($this->withDefault);
+        }
+
+        return $instance;
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
     }
 }

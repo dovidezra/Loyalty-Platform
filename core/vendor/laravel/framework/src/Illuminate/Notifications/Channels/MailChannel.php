@@ -99,10 +99,24 @@ class MailChannel
 
         $this->addAttachments($mailMessage, $message);
 
+<<<<<<< HEAD
         if (! is_null($message->priority)) {
             $mailMessage->setPriority($message->priority);
         }
     }
+=======
+            if ($message->cc) {
+                $m->cc($message->cc);
+            }
+
+            if (! empty($message->replyTo)) {
+                $m->replyTo($message->replyTo[0], isset($message->replyTo[1]) ? $message->replyTo[1] : null);
+            }
+
+            $m->subject($message->subject ?: Str::title(
+                Str::snake(class_basename($notification), ' ')
+            ));
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
 
     /**
      * Address the mail message.

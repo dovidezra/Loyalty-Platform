@@ -8,7 +8,10 @@ use Throwable;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Console\Application as Artisan;
+<<<<<<< HEAD
 use Illuminate\Contracts\Debug\ExceptionHandler;
+=======
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\Cache\Repository as Cache;
 use Illuminate\Contracts\Queue\Queue as QueueContract;
@@ -218,7 +221,11 @@ class Kernel implements KernelContract
             $this->commandsLoaded = true;
         }
 
+<<<<<<< HEAD
         return $this->getArtisan()->call($command, $parameters, $outputBuffer);
+=======
+        return $this->getArtisan()->call($command, $parameters);
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
     }
 
     /**

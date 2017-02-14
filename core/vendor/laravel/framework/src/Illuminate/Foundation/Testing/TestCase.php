@@ -6,7 +6,10 @@ use Mockery;
 use Illuminate\Support\Facades\Facade;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Console\Application as Artisan;
+<<<<<<< HEAD
 use PHPUnit\Framework\TestCase as BaseTestCase;
+=======
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
 
 abstract class TestCase extends BaseTestCase
 {

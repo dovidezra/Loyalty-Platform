@@ -81,7 +81,24 @@ class Util
      */
     public static function normalizePath($path)
     {
+<<<<<<< HEAD
         return static::normalizeRelativePath($path);
+=======
+        // Remove any kind of funky unicode whitespace
+        $normalized = preg_replace('#\p{C}+|^\./#u', '', $path);
+        $normalized = static::normalizeRelativePath($normalized);
+
+        if (preg_match('#(^|/)\.{2}(/|$)#', $normalized)) {
+            throw new LogicException(
+                'Path is outside of the defined root, path: [' . $path . '], resolved: [' . $normalized . ']'
+            );
+        }
+
+        $normalized = preg_replace('#\\\{2,}#', '\\', trim($normalized, '\\'));
+        $normalized = preg_replace('#/{2,}#', '/', trim($normalized, '/'));
+
+        return $normalized;
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
     }
 
     /**
@@ -121,8 +138,13 @@ class Util
             }
         }
 
+<<<<<<< HEAD
         return implode('/', $parts);
     }
+=======
+        // Regex for resolving relative paths
+        $regex = '#/*[^/\.]+/\.\.(?=/|$)#Uu';
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
 
     /**
      * Removes unprintable characters and invalid unicode characters.

@@ -159,10 +159,14 @@ class ReflectionCaster
         if (isset($a[$prefix.'returnType'])) {
             $v = $a[$prefix.'returnType'];
             $v = $v instanceof \ReflectionNamedType ? $v->getName() : $v->__toString();
+<<<<<<< HEAD
             $a[$prefix.'returnType'] = new ClassStub($a[$prefix.'returnType']->allowsNull() ? '?'.$v : $v, array(class_exists($v, false) || interface_exists($v, false) || trait_exists($v, false) ? $v : '', ''));
         }
         if (isset($a[$prefix.'class'])) {
             $a[$prefix.'class'] = new ClassStub($a[$prefix.'class']);
+=======
+            $a[$prefix.'returnType'] = $a[$prefix.'returnType']->allowsNull() ? '?'.$v : $v;
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
         }
         if (isset($a[$prefix.'this'])) {
             $a[$prefix.'this'] = new CutStub($a[$prefix.'this']);

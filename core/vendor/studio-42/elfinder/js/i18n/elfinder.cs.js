@@ -2,7 +2,11 @@
  * Czech translation
  * @author Jay Gridley <gridley.jay@hotmail.com>
  * @author RobiNN <admin@robonetwork.cf>
+<<<<<<< HEAD
  * @version 2017-1-16
+=======
+ * @version 2016-11-21
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
  */
 (function(root, factory) {
 	if (typeof define === 'function' && define.amd) {
@@ -384,9 +388,12 @@
 			'emptyIncSearch'  : 'Výsledky hledání jsou prázdné v aktuálním zobrazení.\\Stisknutím tlačítka [Enter] rozšíříte vyhledávání cíle.', // from v2.1.16 added 5.10.2016
 			'textLabel'       : 'Nápis textu', // from v2.1.17 added 13.10.2016
 			'minsLeft'        : '$1 minut zůstává', // from v2.1.17 added 13.11.2016
+<<<<<<< HEAD
 			'openAsEncoding'  : 'Otevřít pomocí zvoleného kódování', // from v2.1.19 added 2.12.2016
 			'saveAsEncoding'  : 'Uložit s vybraným kódováním', // from v2.1.19 added 2.12.2016
 			'selectFolder'    : 'Vyberte složku', // from v2.1.20 added 13.12.2016
+=======
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
 
 			/********************************** mimetypes **********************************/
 			'kindUnknown'     : 'Neznámý',

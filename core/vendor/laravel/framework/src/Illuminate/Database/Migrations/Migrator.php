@@ -391,6 +391,47 @@ class Migrator
     }
 
     /**
+     * Run a migration inside a transaction if the database supports it.
+     *
+     * @param  object  $migration
+     * @param  string  $method
+     * @return void
+     */
+    protected function runMigration($migration, $method)
+    {
+        $name = $migration->getConnection();
+
+        $connection = $this->resolveConnection($name);
+
+        $callback = function () use ($migration, $method) {
+            $migration->$method();
+        };
+
+        $grammar = $this->getSchemaGrammar($connection);
+
+        $grammar->supportsSchemaTransactions()
+                    ? $connection->transaction($callback)
+                    : $callback();
+    }
+
+    /**
+     * Get the schema grammar out of a migration connection.
+     *
+     * @param  \Illuminate\Database\Connection  $connection
+     * @return \Illuminate\Database\Schema\Grammars\Grammar
+     */
+    protected function getSchemaGrammar($connection)
+    {
+        if (is_null($grammar = $connection->getSchemaGrammar())) {
+            $connection->useDefaultSchemaGrammar();
+
+            $grammar = $connection->getSchemaGrammar();
+        }
+
+        return $grammar;
+    }
+
+    /**
      * Resolve a migration instance from a file.
      *
      * @param  string  $file

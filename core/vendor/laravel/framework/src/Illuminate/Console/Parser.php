@@ -21,6 +21,7 @@ class Parser
     {
         $name = static::name($expression);
 
+<<<<<<< HEAD
         if (preg_match_all('/\{\s*(.*?)\s*\}/', $expression, $matches)) {
             if (count($matches[1])) {
                 return array_merge([$name], static::parameters($matches[1]));
@@ -44,6 +45,20 @@ class Parser
 
         if (! preg_match('/[^\s]+/', $expression, $matches)) {
             throw new InvalidArgumentException('Unable to determine command name from signature.');
+=======
+        if (! preg_match('/[^\s]+/', $expression, $matches)) {
+            throw new InvalidArgumentException('Unable to determine command name from signature.');
+        }
+
+        $name = $matches[0];
+
+        if (preg_match_all('/\{\s*(.*?)\s*\}/', $expression, $matches)) {
+            $tokens = $matches[1];
+
+            if (count($tokens)) {
+                return array_merge([$name], static::parameters($tokens));
+            }
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
         }
 
         return $matches[0];
@@ -80,7 +95,11 @@ class Parser
      */
     protected static function parseArgument($token)
     {
+<<<<<<< HEAD
         list($token, $description) = static::extractDescription($token);
+=======
+        list($token, $description) = static::parseToken($token);
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
 
         switch (true) {
             case Str::endsWith($token, '?*'):
@@ -104,7 +123,11 @@ class Parser
      */
     protected static function parseOption($token)
     {
+<<<<<<< HEAD
         list($token, $description) = static::extractDescription($token);
+=======
+        list($token, $description) = static::parseToken($token);
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
 
         $matches = preg_split('/\s*\|\s*/', $token, 2);
 
@@ -133,7 +156,11 @@ class Parser
      * @param  string  $token
      * @return array
      */
+<<<<<<< HEAD
     protected static function extractDescription($token)
+=======
+    protected static function parseToken($token)
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
     {
         $parts = preg_split('/\s+:\s+/', trim($token), 2);
 

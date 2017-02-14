@@ -58,6 +58,15 @@ class MailServiceProvider extends ServiceProvider
                 $this->setGlobalAddress($mailer, $config, $type);
             }
 
+            // If a "reply to" address is set, we will set it on the mailer so that each
+            // message sent by the application will utilize the same address for this
+            // setting. This is more convenient than specifying it on each message.
+            $replyTo = $app['config']['mail.reply_to'];
+
+            if (is_array($replyTo) && isset($replyTo['address'])) {
+                $mailer->alwaysReplyTo($replyTo['address'], $replyTo['name']);
+            }
+
             return $mailer;
         });
     }

@@ -52,6 +52,65 @@ class SyncQueue extends Queue implements QueueContract
     }
 
     /**
+<<<<<<< HEAD
+=======
+     * Handle an exception that occurred while processing a job.
+     *
+     * @param  \Illuminate\Queue\Jobs\Job  $queueJob
+     * @param  \Exception  $e
+     * @return void
+     *
+     * @throws \Exception
+     */
+    protected function handleSyncException($queueJob, $e)
+    {
+        $this->raiseExceptionOccurredJobEvent($queueJob, $e);
+
+        $this->handleFailedJob($queueJob, $e);
+
+        throw $e;
+    }
+
+    /**
+     * Push a raw payload onto the queue.
+     *
+     * @param  string  $payload
+     * @param  string  $queue
+     * @param  array   $options
+     * @return mixed
+     */
+    public function pushRaw($payload, $queue = null, array $options = [])
+    {
+        //
+    }
+
+    /**
+     * Push a new job onto the queue after a delay.
+     *
+     * @param  \DateTime|int  $delay
+     * @param  string  $job
+     * @param  mixed   $data
+     * @param  string  $queue
+     * @return mixed
+     */
+    public function later($delay, $job, $data = '', $queue = null)
+    {
+        return $this->push($job, $data, $queue);
+    }
+
+    /**
+     * Pop the next job off of the queue.
+     *
+     * @param  string  $queue
+     * @return \Illuminate\Contracts\Queue\Job|null
+     */
+    public function pop($queue = null)
+    {
+        //
+    }
+
+    /**
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
      * Resolve a Sync job instance.
      *
      * @param  string  $payload

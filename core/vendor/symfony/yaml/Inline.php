@@ -27,6 +27,8 @@ class Inline
 
     public static $parsedLineNumber;
 
+    public static $parsedLineNumber;
+
     private static $exceptionOnInvalidType = false;
     private static $objectSupport = false;
     private static $objectForMap = false;

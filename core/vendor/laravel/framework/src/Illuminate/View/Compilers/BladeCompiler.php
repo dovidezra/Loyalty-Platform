@@ -317,9 +317,21 @@ class BladeCompiler extends Compiler implements CompilerInterface
      */
     public function stripParentheses($expression)
     {
+<<<<<<< HEAD
         if (Str::startsWith($expression, '(')) {
             $expression = substr($expression, 1, -1);
         }
+=======
+        preg_match('/\( *(.*) +as *(.*)\)$/is', $expression, $matches);
+
+        $iteratee = trim($matches[1]);
+
+        $iteration = trim($matches[2]);
+
+        $initLoop = "\$__currentLoopData = {$iteratee}; \$__env->addLoop(\$__currentLoopData);";
+
+        $iterateLoop = '$__env->incrementLoopIndices(); $loop = $__env->getFirstLoop();';
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
 
         return $expression;
     }
@@ -354,7 +366,23 @@ class BladeCompiler extends Compiler implements CompilerInterface
      */
     public function directive($name, callable $handler)
     {
+<<<<<<< HEAD
         $this->customDirectives[$name] = $handler;
+=======
+        $empty = '$__empty_'.++$this->forelseCounter;
+
+        preg_match('/\( *(.*) +as *(.*)\)$/is', $expression, $matches);
+
+        $iteratee = trim($matches[1]);
+
+        $iteration = trim($matches[2]);
+
+        $initLoop = "\$__currentLoopData = {$iteratee}; \$__env->addLoop(\$__currentLoopData);";
+
+        $iterateLoop = '$__env->incrementLoopIndices(); $loop = $__env->getFirstLoop();';
+
+        return "<?php {$empty} = true; {$initLoop} foreach(\$__currentLoopData as {$iteration}): {$iterateLoop} {$empty} = false; ?>";
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
     }
 
     /**

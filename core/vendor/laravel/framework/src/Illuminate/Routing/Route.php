@@ -13,7 +13,12 @@ use Illuminate\Routing\Matching\UriValidator;
 use Illuminate\Routing\Matching\HostValidator;
 use Illuminate\Routing\Matching\MethodValidator;
 use Illuminate\Routing\Matching\SchemeValidator;
+<<<<<<< HEAD
 use Illuminate\Http\Exceptions\HttpResponseException;
+=======
+use Illuminate\Http\Exception\HttpResponseException;
+use Symfony\Component\Routing\Route as SymfonyRoute;
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
 
 class Route
 {
@@ -271,8 +276,56 @@ class Route
      */
     protected function compileRoute()
     {
+<<<<<<< HEAD
         if (! $this->compiled) {
             $this->compiled = (new RouteCompiler($this))->compile();
+=======
+        $optionals = $this->extractOptionalParameters();
+
+        $uri = preg_replace('/\{(\w+?)\?\}/', '{$1}', $this->uri);
+
+        $this->compiled = (
+            new SymfonyRoute($uri, $optionals, $this->wheres, [], $this->domain() ?: '')
+        )->compile();
+    }
+
+    /**
+     * Get the optional parameters for the route.
+     *
+     * @return array
+     */
+    protected function extractOptionalParameters()
+    {
+        preg_match_all('/\{(\w+?)\?\}/', $this->uri, $matches);
+
+        return isset($matches[1]) ? array_fill_keys($matches[1], null) : [];
+    }
+
+    /**
+     * Get all middleware, including the ones from the controller.
+     *
+     * @return array
+     */
+    public function gatherMiddleware()
+    {
+        return array_unique(array_merge($this->middleware(), $this->controllerMiddleware()), SORT_REGULAR);
+    }
+
+    /**
+     * Get or set the middlewares attached to the route.
+     *
+     * @param  array|string|null $middleware
+     * @return $this|array
+     */
+    public function middleware($middleware = null)
+    {
+        if (is_null($middleware)) {
+            return (array) Arr::get($this->action, 'middleware', []);
+        }
+
+        if (is_string($middleware)) {
+            $middleware = func_get_args();
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
         }
 
         return $this->compiled;

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 2017-02-07  Naoki Sawada  <hypweb@gmail.com>
 
 	* elFinder (2.1.21):
@@ -11,6 +12,8 @@
 		- And some minor bug fixes
 
 
+=======
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
 2017-01-11  Naoki Sawada  <hypweb@gmail.com>
 
 	* elFinder (2.1.20):

@@ -6,7 +6,10 @@ use Faker\Factory as FakerFactory;
 use Faker\Generator as FakerGenerator;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\ServiceProvider;
+<<<<<<< HEAD
 use Illuminate\Contracts\Queue\EntityResolver;
+=======
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
 use Illuminate\Database\Connectors\ConnectionFactory;
 use Illuminate\Database\Eloquent\QueueEntityResolver;
 use Illuminate\Database\Eloquent\Factory as EloquentFactory;

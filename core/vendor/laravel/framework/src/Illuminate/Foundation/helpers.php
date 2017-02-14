@@ -156,7 +156,11 @@ if (! function_exists('back')) {
      *
      * @param  int    $status
      * @param  array  $headers
+<<<<<<< HEAD
      * @param  mixed  $fallback
+=======
+     * @param  string  $fallback
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
      * @return \Illuminate\Http\RedirectResponse
      */
     function back($status = 302, $headers = [], $fallback = false)

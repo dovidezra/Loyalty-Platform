@@ -903,6 +903,25 @@ class Blueprint
 
     /**
      * Add nullable columns for a polymorphic table.
+<<<<<<< HEAD
+=======
+     *
+     * @param  string  $name
+     * @param  string|null  $indexName
+     * @return void
+     */
+    public function nullableMorphs($name, $indexName = null)
+    {
+        $this->unsignedInteger("{$name}_id")->nullable();
+
+        $this->string("{$name}_type")->nullable();
+
+        $this->index(["{$name}_id", "{$name}_type"], $indexName);
+    }
+
+    /**
+     * Adds the `remember_token` column to the table.
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
      *
      * @param  string  $name
      * @param  string|null  $indexName

@@ -144,6 +144,7 @@ class ExceptionCaster
         $prefix = Caster::PREFIX_VIRTUAL;
 
         if (isset($f['file'], $f['line'])) {
+<<<<<<< HEAD
             $cacheKey = $f;
             unset($cacheKey['object'], $cacheKey['args']);
             $cacheKey[] = self::$srcContext;
@@ -184,6 +185,30 @@ class ExceptionCaster
                         $srcKey .= ':'.$f['line'];
                         if ($ellipsis) {
                             $ellipsis += 1 + strlen($f['line']);
+=======
+            if (preg_match('/\((\d+)\)(?:\([\da-f]{32}\))? : (?:eval\(\)\'d code|runtime-created function)$/', $f['file'], $match)) {
+                $f['file'] = substr($f['file'], 0, -strlen($match[0]));
+                $f['line'] = (int) $match[1];
+            }
+            if (file_exists($f['file']) && 0 <= self::$srcContext) {
+                $src[$f['file'].':'.$f['line']] = self::extractSource(explode("\n", file_get_contents($f['file'])), $f['line'], self::$srcContext);
+
+                if (!empty($f['class']) && is_subclass_of($f['class'], 'Twig_Template') && method_exists($f['class'], 'getDebugInfo')) {
+                    $template = isset($f['object']) ? $f['object'] : unserialize(sprintf('O:%d:"%s":0:{}', strlen($f['class']), $f['class']));
+
+                    $templateName = $template->getTemplateName();
+                    $templateSrc = method_exists($template, 'getSourceContext') ? $template->getSourceContext()->getCode() : (method_exists($template, 'getSource') ? $template->getSource() : '');
+                    $templateInfo = $template->getDebugInfo();
+                    if (isset($templateInfo[$f['line']])) {
+                        if (method_exists($template, 'getSourceContext')) {
+                            $templateName = $template->getSourceContext()->getPath() ?: $templateName;
+                        }
+                        if ($templateSrc) {
+                            $templateSrc = explode("\n", $templateSrc);
+                            $src[$templateName.':'.$templateInfo[$f['line']]] = self::extractSource($templateSrc, $templateInfo[$f['line']], self::$srcContext);
+                        } else {
+                            $src[$templateName] = $templateInfo[$f['line']];
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
                         }
                     }
                 }

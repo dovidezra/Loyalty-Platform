@@ -42,8 +42,12 @@ trait SerializesAndRestoresModelIdentifiers
 
         return is_array($value->id)
                 ? $this->restoreCollection($value)
+<<<<<<< HEAD
                 : $this->getQueryForModelRestoration(new $value->class)
                             ->useWritePdo()->findOrFail($value->id);
+=======
+                : $this->getQueryForModelRestoration(new $value->class)->useWritePdo()->findOrFail($value->id);
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
     }
 
     /**

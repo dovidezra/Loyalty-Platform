@@ -3,6 +3,7 @@
  * @author 翻译者 deerchao <deerchao@gmail.com>
  * @author Andy Hu <andyhu7@yahoo.com.hk>
  * @author Max Wen<max.wen@qq.com>
+<<<<<<< HEAD
  * @author Kejun Chang <changkejun@hotmail.com>
  * @version 2017-02-03
  */
@@ -18,6 +19,10 @@
  * @author Translator Name <translator@email.tld>
  * @version 201x-xx-xx
  */
+=======
+ * @version 2016-10-20
+ */
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
 (function(root, factory) {
 	if (typeof define === 'function' && define.amd) {
 		define(['elfinder'], factory);
@@ -28,7 +33,11 @@
 	}
 }(this, function(elFinder) {
 	elFinder.prototype.i18.zh_CN = {
+<<<<<<< HEAD
 		translator : '翻译者 deerchao &lt;deerchao@gmail.com&gt;, Andy Hu &lt;andyhu7@yahoo.com.hk&gt;, Max Wen&lt;max.wen@qq.com&gt;, Kejun Chang &lt;changkejun@hotmail.com&gt;',
+=======
+		translator : '翻译者 deerchao &lt;deerchao@gmail.com&gt;, Andy Hu &lt;andyhu7@yahoo.com.hk&gt;, Max Wen&lt;max.wen@qq.com&gt;',
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
 		language   : '简体中文',
 		direction  : 'ltr',
 		dateFormat : 'Y-m-d H:i', // Mar 13, 2012 05:27 PM
@@ -154,11 +163,18 @@
 			'cmdsort'      : '排序',
 			'cmdnetmount'  : '装载网络卷', // added 18.04.2012
 			'cmdnetunmount': '卸载', // from v2.1 added 30.04.2012
+<<<<<<< HEAD
 			'cmdplaces'    : '添加到收藏夹', // added 28.12.2014
 			'cmdchmod'     : '改变模式', // from v2.1 added 20.6.2015
 			'cmdopendir'   : '打开文件夹', // from v2.1 added 13.1.2016
 			'cmdcolwidth'  : '设置列宽', // from v2.1.13 added 12.06.2016
 			'cmdfullscreen': '全屏显示', // from v2.1.15 added 03.08.2016
+=======
+			'cmdplaces'    : 'To Places', // added 28.12.2014
+			'cmdchmod'     : '改变模式', // from v2.1 added 20.6.2015
+			'cmdopendir'   : '打开文件夹', // from v2.1 added 13.1.2016
+			'cmdcolwidth'  : '设置列宽', // from v2.1.13 added 12.06.2016
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
 			'cmdmove'      : '移动', // from v2.1.15 added 21.08.2016
 
 			/*********************************** buttons ***********************************/
@@ -209,8 +225,11 @@
 			'ntfchmod'    : '正在改变文件模式', // from v2.1 added 20.6.2015
 			'ntfpreupload': '正在验证上传文件名', // from v2.1 added 31.11.2015
 			'ntfzipdl'    : '正在创建一个下载文件', // from v2.1.7 added 23.1.2016
+<<<<<<< HEAD
 			'ntfparents'  : '正在取得路径信息', // from v2.1.17 added 2.11.2016
 			'ntfchunkmerge': '正在处理上传文件', // from v2.1.17 added 2.11.2016
+=======
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
 
 			/************************************ dates **********************************/
 			'dateUnknown' : '未知',
@@ -261,6 +280,7 @@
 			'sortsize'          : '按大小',
 			'sortdate'          : '按日期',
 			'sortFoldersFirst'  : '文件夹优先',
+<<<<<<< HEAD
 			'sortperm'          : '按权限排序', // from v2.1.13 added 13.06.2016
 			'sortmode'          : '按属性排序',       // from v2.1.13 added 13.06.2016
 			'sortowner'         : '按所有者排序',      // from v2.1.13 added 13.06.2016
@@ -271,14 +291,31 @@
 			'untitled file.txt' : '新文件.txt', // added 10.11.2015
 			'untitled folder'   : '新文件夹',   // added 10.11.2015
 			'Archive'           : '新压缩包',  // from v2.1 added 10.11.2015
+=======
+			'sortperm'          : 'by permission', // from v2.1.13 added 13.06.2016
+			'sortmode'          : 'by mode',       // from v2.1.13 added 13.06.2016
+			'sortowner'         : 'by owner',      // from v2.1.13 added 13.06.2016
+			'sortgroup'         : 'by group',      // from v2.1.13 added 13.06.2016
+			'sortAlsoTreeview'  : 'Also Treeview',  // from v2.1.15 added 01.08.2016
+
+			/********************************** new items **********************************/
+			'untitled file.txt' : 'NewFile.txt', // added 10.11.2015
+			'untitled folder'   : 'NewFolder',   // added 10.11.2015
+			'Archive'           : 'NewArchive',  // from v2.1 added 10.11.2015
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
 
 			/********************************** messages **********************************/
 			'confirmReq'      : '请确认',
 			'confirmRm'       : '确定要删除文件吗?<br/>该操作不可撤销!',
 			'confirmRepl'     : '用新的文件替换原有文件?',
+<<<<<<< HEAD
 			'confirmConvUTF8' : '文件不是UTF-8格式.<br/>转换为UTF-8吗？<br/>通过在转换后保存,内容变为UTF-8.', // from v2.1 added 08.04.2014
 			'confirmNonUTF8'  : '无法检测到此文件的字符编码.需要暂时转换此文件为UTF-8编码以进行编辑.<br/>请选择此文件的字符编码.', // from v2.1.19 added 28.11.2016
 			'confirmNotSave'  : '文件已被编辑.<br/>如果不保存直接关闭,将丢失编辑内容.', // from v2.1 added 15.7.2015
+=======
+			'confirmConvUTF8' : 'Not in UTF-8<br/>Convert to UTF-8?<br/>Contents become UTF-8 by saving after conversion.', // from v2.1 added 08.04.2014
+			'confirmNotSave'  : 'It has been modified.<br/>Losing work if you do not save changes.', // from v2.1 added 15.7.2015
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
 			'apllyAll'        : '全部应用',
 			'name'            : '名称',
 			'size'            : '大小',
@@ -346,6 +383,7 @@
 			'rotate-cw'       : '顺时针旋转90度',
 			'rotate-ccw'      : '逆时针旋转90度',
 			'degree'          : '度',
+<<<<<<< HEAD
 			'netMountDialogTitle' : '装载网络目录', // added 18.04.2012
 			'protocol'            : '协议', // added 18.04.2012
 			'host'                : '主机', // added 18.04.2012
@@ -405,6 +443,63 @@
 			/********************************** mimetypes **********************************/
 			'kindUnknown'     : '未知',
 			'kindRoot'        : '根目录', // from v2.1.16 added 16.10.2016
+=======
+			'netMountDialogTitle' : 'Mount network volume', // added 18.04.2012
+			'protocol'            : 'Protocol', // added 18.04.2012
+			'host'                : 'Host', // added 18.04.2012
+			'port'                : '端口', // added 18.04.2012
+			'user'                : '用户', // added 18.04.2012
+			'pass'                : '密码', // added 18.04.2012
+			'confirmUnmount'      : 'Are you unmount $1?',  // from v2.1 added 30.04.2012
+			'dropFilesBrowser': 'Drop or Paste files from browser', // from v2.1 added 30.05.2012
+			'dropPasteFiles'  : 'Drop or Paste files and URLs here', // from v2.1 added 07.04.2014
+			'encoding'        : 'Encoding', // from v2.1 added 19.12.2014
+			'locale'          : 'Locale',   // from v2.1 added 19.12.2014
+			'searchTarget'    : 'Target: $1',                // from v2.1 added 22.5.2015
+			'searchMime'      : 'Search by input MIME Type', // from v2.1 added 22.5.2015
+			'owner'           : 'Owner', // from v2.1 added 20.6.2015
+			'group'           : 'Group', // from v2.1 added 20.6.2015
+			'other'           : 'Other', // from v2.1 added 20.6.2015
+			'execute'         : 'Execute', // from v2.1 added 20.6.2015
+			'perm'            : 'Permission', // from v2.1 added 20.6.2015
+			'mode'            : 'Mode', // from v2.1 added 20.6.2015
+			'emptyFolder'     : '文件夹是空的', // from v2.1.6 added 30.12.2015
+			'emptyFolderDrop' : 'Folder is empty\\A Drop to add items', // from v2.1.6 added 30.12.2015
+			'emptyFolderLTap' : 'Folder is empty\\A Long tap to add items', // from v2.1.6 added 30.12.2015
+			'quality'         : 'Quality', // from v2.1.6 added 5.1.2016
+			'autoSync'        : 'Auto sync',  // from v2.1.6 added 10.1.2016
+			'moveUp'          : 'Move up',  // from v2.1.6 added 18.1.2016
+			'getLink'         : 'Get URL link', // from v2.1.7 added 9.2.2016
+			'selectedItems'   : 'Selected items ($1)', // from v2.1.7 added 2.19.2016
+			'folderId'        : 'Folder ID', // from v2.1.10 added 3.25.2016
+			'offlineAccess'   : 'Allow offline access', // from v2.1.10 added 3.25.2016
+			'reAuth'          : 'To re-authenticate', // from v2.1.10 added 3.25.2016
+			'nowLoading'      : 'Now loading...', // from v2.1.12 added 4.26.2016
+			'openMulti'       : 'Open multiple files', // from v2.1.12 added 5.14.2016
+			'openMultiConfirm': 'You are trying to open the $1 files. Are you sure you want to open in browser?', // from v2.1.12 added 5.14.2016
+			'emptySearch'     : 'No match results in search targets', // from v2.1.12 added 5.16.2016
+			'editingFile'     : 'You are editing a file.', // from v2.1.13 added 6.3.2016
+			'hasSelected'     : 'You have selected $1 items.', // from v2.1.13 added 6.3.2016
+			'hasClipboard'    : 'You have $1 items in the clipboard.', // from v2.1.13 added 6.3.2016
+			'incSearchOnly'   : 'Incremental search is only from the current view.', // from v2.1.13 added 6.30.2016
+			'reinstate'       : 'Reinstate', // from v2.1.15 added 3.8.2016
+			'complete'        : '$1 complete', // from v2.1.15 added 21.8.2016
+			'contextmenu'     : 'Context menu', // from v2.1.15 added 9.9.2016
+			'pageTurning'     : 'Page turning', // from v2.1.15 added 10.9.2016
+			'volumeRoots'     : 'Volume roots', // from v2.1.16 added 16.9.2016
+			'reset'           : 'Reset', // from v2.1.16 added 1.10.2016
+			'bgcolor'         : 'Background color', // from v2.1.16 added 1.10.2016
+			'colorPicker'     : 'Color picker', // from v2.1.16 added 1.10.2016
+			'8pxgrid'         : '8px Grid', // from v2.1.16 added 4.10.2016
+			'enabled'         : 'Enabled', // from v2.1.16 added 4.10.2016
+			'disabled'        : 'Disabled', // from v2.1.16 added 4.10.2016
+			'emptyIncSearch'  : 'No match results in current view', // from v2.1.16 added 5.10.2016
+			'textLabel'       : 'Text lable', // from v2.1.17 added 13.10.2016
+
+			/********************************** mimetypes **********************************/
+			'kindUnknown'     : '未知',
+			'kindRoot'        : 'Volume Root', // from v2.1.16 added 16.10.2016
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
 			'kindFolder'      : '文件夹',
 			'kindAlias'       : '别名',
 			'kindAliasBroken' : '错误的别名',
@@ -452,7 +547,11 @@
 			'kindAWK'         : 'AWK 源代码',
 			'kindCSV'         : '逗号分隔值文件(CSV)',
 			'kindDOCBOOK'     : 'Docbook XML 文档',
+<<<<<<< HEAD
 			'kindMarkdown'    : 'Markdown 文本', // added 20.7.2015
+=======
+			'kindMarkdown'    : 'Markdown text', // added 20.7.2015
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
 			// images
 			'kindImage'       : '图片',
 			'kindBMP'         : 'BMP 图片',
@@ -485,3 +584,7 @@
 		}
 	};
 }));
+<<<<<<< HEAD
+=======
+
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577

@@ -222,6 +222,42 @@ class Router implements RegistrarContract, BindingRegistrar
     }
 
     /**
+<<<<<<< HEAD
+=======
+     * Set the unmapped global resource parameters to singular.
+     *
+     * @param  bool  $singular
+     * @return void
+     */
+    public function singularResourceParameters($singular = true)
+    {
+        ResourceRegistrar::singularParameters($singular);
+    }
+
+    /**
+     * Set the global resource parameter mapping.
+     *
+     * @param  array  $parameters
+     * @return void
+     */
+    public function resourceParameters(array $parameters = [])
+    {
+        ResourceRegistrar::setParameters($parameters);
+    }
+
+    /**
+     * Get or set the verbs used in the resource URIs.
+     *
+     * @param  array  $verbs
+     * @return array|null
+     */
+    public function resourceVerbs(array $verbs = [])
+    {
+        return ResourceRegistrar::verbs($verbs);
+    }
+
+    /**
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
      * Register an array of resource controllers.
      *
      * @param  array  $resources
@@ -254,6 +290,32 @@ class Router implements RegistrarContract, BindingRegistrar
     }
 
     /**
+<<<<<<< HEAD
+=======
+     * Register the typical authentication routes for an application.
+     *
+     * @return void
+     */
+    public function auth()
+    {
+        // Authentication Routes...
+        $this->get('login', 'Auth\LoginController@showLoginForm')->name('login');
+        $this->post('login', 'Auth\LoginController@login');
+        $this->post('logout', 'Auth\LoginController@logout')->name('logout');
+
+        // Registration Routes...
+        $this->get('register', 'Auth\RegisterController@showRegistrationForm')->name('register');
+        $this->post('register', 'Auth\RegisterController@register');
+
+        // Password Reset Routes...
+        $this->get('password/reset', 'Auth\ForgotPasswordController@showLinkRequestForm');
+        $this->post('password/email', 'Auth\ForgotPasswordController@sendResetLinkEmail');
+        $this->get('password/reset/{token}', 'Auth\ResetPasswordController@showResetForm');
+        $this->post('password/reset', 'Auth\ResetPasswordController@reset');
+    }
+
+    /**
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
      * Create a route group with shared attributes.
      *
      * @param  array  $attributes
@@ -630,7 +692,28 @@ class Router implements RegistrarContract, BindingRegistrar
      */
     public function substituteImplicitBindings($route)
     {
+<<<<<<< HEAD
         ImplicitRouteBinding::resolveForRoute($this->container, $route);
+=======
+        $parameters = $route->parameters();
+
+        foreach ($route->signatureParameters(Model::class) as $parameter) {
+            $class = $parameter->getClass();
+
+            if (array_key_exists($parameter->name, $parameters) &&
+                ! $route->getParameter($parameter->name) instanceof Model) {
+                $method = $parameter->isDefaultValueAvailable() ? 'first' : 'firstOrFail';
+
+                $model = $this->container->make($class->name);
+
+                $route->setParameter(
+                    $parameter->name, $model->where(
+                        $model->getRouteKeyName(), $parameters[$parameter->name]
+                    )->{$method}()
+                );
+            }
+        }
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
     }
 
     /**

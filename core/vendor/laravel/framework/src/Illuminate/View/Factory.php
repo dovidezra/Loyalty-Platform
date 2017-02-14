@@ -270,12 +270,406 @@ class Factory implements FactoryContract
     public function share($key, $value = null)
     {
         $keys = is_array($key) ? $key : [$key => $value];
+<<<<<<< HEAD
+=======
 
         foreach ($keys as $key => $value) {
             $this->shared[$key] = $value;
         }
 
         return $value;
+    }
+
+    /**
+     * Register a view creator event.
+     *
+     * @param  array|string     $views
+     * @param  \Closure|string  $callback
+     * @return array
+     */
+    public function creator($views, $callback)
+    {
+        $creators = [];
+
+        foreach ((array) $views as $view) {
+            $creators[] = $this->addViewEvent($view, $callback, 'creating: ');
+        }
+
+        return $creators;
+    }
+
+    /**
+     * Register multiple view composers via an array.
+     *
+     * @param  array  $composers
+     * @return array
+     */
+    public function composers(array $composers)
+    {
+        $registered = [];
+
+        foreach ($composers as $callback => $views) {
+            $registered = array_merge($registered, $this->composer($views, $callback));
+        }
+
+        return $registered;
+    }
+
+    /**
+     * Register a view composer event.
+     *
+     * @param  array|string  $views
+     * @param  \Closure|string  $callback
+     * @param  int|null  $priority
+     * @return array
+     */
+    public function composer($views, $callback, $priority = null)
+    {
+        $composers = [];
+
+        foreach ((array) $views as $view) {
+            $composers[] = $this->addViewEvent($view, $callback, 'composing: ', $priority);
+        }
+
+        return $composers;
+    }
+
+    /**
+     * Add an event for a given view.
+     *
+     * @param  string  $view
+     * @param  \Closure|string  $callback
+     * @param  string  $prefix
+     * @param  int|null  $priority
+     * @return \Closure|null
+     */
+    protected function addViewEvent($view, $callback, $prefix = 'composing: ', $priority = null)
+    {
+        $view = $this->normalizeName($view);
+
+        if ($callback instanceof Closure) {
+            $this->addEventListener($prefix.$view, $callback, $priority);
+
+            return $callback;
+        } elseif (is_string($callback)) {
+            return $this->addClassEvent($view, $callback, $prefix, $priority);
+        }
+    }
+
+    /**
+     * Register a class based view composer.
+     *
+     * @param  string    $view
+     * @param  string    $class
+     * @param  string    $prefix
+     * @param  int|null  $priority
+     * @return \Closure
+     */
+    protected function addClassEvent($view, $class, $prefix, $priority = null)
+    {
+        $name = $prefix.$view;
+
+        // When registering a class based view "composer", we will simply resolve the
+        // classes from the application IoC container then call the compose method
+        // on the instance. This allows for convenient, testable view composers.
+        $callback = $this->buildClassEventCallback($class, $prefix);
+
+        $this->addEventListener($name, $callback, $priority);
+
+        return $callback;
+    }
+
+    /**
+     * Add a listener to the event dispatcher.
+     *
+     * @param  string    $name
+     * @param  \Closure  $callback
+     * @param  int|null  $priority
+     * @return void
+     */
+    protected function addEventListener($name, $callback, $priority = null)
+    {
+        if (is_null($priority)) {
+            $this->events->listen($name, $callback);
+        } else {
+            $this->events->listen($name, $callback, $priority);
+        }
+    }
+
+    /**
+     * Build a class based container callback Closure.
+     *
+     * @param  string  $class
+     * @param  string  $prefix
+     * @return \Closure
+     */
+    protected function buildClassEventCallback($class, $prefix)
+    {
+        list($class, $method) = $this->parseClassEvent($class, $prefix);
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
+
+        foreach ($keys as $key => $value) {
+            $this->shared[$key] = $value;
+        }
+
+<<<<<<< HEAD
+        return $value;
+=======
+        $method = Str::contains($prefix, 'composing') ? 'compose' : 'create';
+
+        return [$class, $method];
+    }
+
+    /**
+     * Call the composer for a given view.
+     *
+     * @param  \Illuminate\Contracts\View\View  $view
+     * @return void
+     */
+    public function callComposer(ViewContract $view)
+    {
+        $this->events->fire('composing: '.$view->name(), [$view]);
+    }
+
+    /**
+     * Call the creator for a given view.
+     *
+     * @param  \Illuminate\Contracts\View\View  $view
+     * @return void
+     */
+    public function callCreator(ViewContract $view)
+    {
+        $this->events->fire('creating: '.$view->name(), [$view]);
+    }
+
+    /**
+     * Start injecting content into a section.
+     *
+     * @param  string  $section
+     * @param  string  $content
+     * @return void
+     */
+    public function startSection($section, $content = '')
+    {
+        if ($content === '') {
+            if (ob_start()) {
+                $this->sectionStack[] = $section;
+            }
+        } else {
+            $this->extendSection($section, $content);
+        }
+    }
+
+    /**
+     * Inject inline content into a section.
+     *
+     * @param  string  $section
+     * @param  string  $content
+     * @return void
+     */
+    public function inject($section, $content)
+    {
+        return $this->startSection($section, $content);
+    }
+
+    /**
+     * Stop injecting content into a section and return its contents.
+     *
+     * @return string
+     */
+    public function yieldSection()
+    {
+        if (empty($this->sectionStack)) {
+            return '';
+        }
+
+        return $this->yieldContent($this->stopSection());
+    }
+
+    /**
+     * Stop injecting content into a section.
+     *
+     * @param  bool  $overwrite
+     * @return string
+     * @throws \InvalidArgumentException
+     */
+    public function stopSection($overwrite = false)
+    {
+        if (empty($this->sectionStack)) {
+            throw new InvalidArgumentException('Cannot end a section without first starting one.');
+        }
+
+        $last = array_pop($this->sectionStack);
+
+        if ($overwrite) {
+            $this->sections[$last] = ob_get_clean();
+        } else {
+            $this->extendSection($last, ob_get_clean());
+        }
+
+        return $last;
+    }
+
+    /**
+     * Stop injecting content into a section and append it.
+     *
+     * @return string
+     * @throws \InvalidArgumentException
+     */
+    public function appendSection()
+    {
+        if (empty($this->sectionStack)) {
+            throw new InvalidArgumentException('Cannot end a section without first starting one.');
+        }
+
+        $last = array_pop($this->sectionStack);
+
+        if (isset($this->sections[$last])) {
+            $this->sections[$last] .= ob_get_clean();
+        } else {
+            $this->sections[$last] = ob_get_clean();
+        }
+
+        return $last;
+    }
+
+    /**
+     * Append content to a given section.
+     *
+     * @param  string  $section
+     * @param  string  $content
+     * @return void
+     */
+    protected function extendSection($section, $content)
+    {
+        if (isset($this->sections[$section])) {
+            $content = str_replace('@parent', $content, $this->sections[$section]);
+        }
+
+        $this->sections[$section] = $content;
+    }
+
+    /**
+     * Get the string contents of a section.
+     *
+     * @param  string  $section
+     * @param  string  $default
+     * @return string
+     */
+    public function yieldContent($section, $default = '')
+    {
+        $sectionContent = $default;
+
+        if (isset($this->sections[$section])) {
+            $sectionContent = $this->sections[$section];
+        }
+
+        $sectionContent = str_replace('@@parent', '--parent--holder--', $sectionContent);
+
+        return str_replace(
+            '--parent--holder--', '@parent', str_replace('@parent', '', $sectionContent)
+        );
+    }
+
+    /**
+     * Start injecting content into a push section.
+     *
+     * @param  string  $section
+     * @param  string  $content
+     * @return void
+     */
+    public function startPush($section, $content = '')
+    {
+        if ($content === '') {
+            if (ob_start()) {
+                $this->pushStack[] = $section;
+            }
+        } else {
+            $this->extendPush($section, $content);
+        }
+    }
+
+    /**
+     * Stop injecting content into a push section.
+     *
+     * @return string
+     * @throws \InvalidArgumentException
+     */
+    public function stopPush()
+    {
+        if (empty($this->pushStack)) {
+            throw new InvalidArgumentException('Cannot end a section without first starting one.');
+        }
+
+        $last = array_pop($this->pushStack);
+
+        $this->extendPush($last, ob_get_clean());
+
+        return $last;
+    }
+
+    /**
+     * Append content to a given push section.
+     *
+     * @param  string  $section
+     * @param  string  $content
+     * @return void
+     */
+    protected function extendPush($section, $content)
+    {
+        if (! isset($this->pushes[$section])) {
+            $this->pushes[$section] = [];
+        }
+        if (! isset($this->pushes[$section][$this->renderCount])) {
+            $this->pushes[$section][$this->renderCount] = $content;
+        } else {
+            $this->pushes[$section][$this->renderCount] .= $content;
+        }
+    }
+
+    /**
+     * Get the string contents of a push section.
+     *
+     * @param  string  $section
+     * @param  string  $default
+     * @return string
+     */
+    public function yieldPushContent($section, $default = '')
+    {
+        if (! isset($this->pushes[$section])) {
+            return $default;
+        }
+
+        return implode(array_reverse($this->pushes[$section]));
+    }
+
+    /**
+     * Flush all of the section contents.
+     *
+     * @return void
+     */
+    public function flushSections()
+    {
+        $this->renderCount = 0;
+
+        $this->sections = [];
+        $this->sectionStack = [];
+
+        $this->pushes = [];
+        $this->pushStack = [];
+    }
+
+    /**
+     * Flush all of the section contents if done rendering.
+     *
+     * @return void
+     */
+    public function flushSectionsIfDoneRendering()
+    {
+        if ($this->doneRendering()) {
+            $this->flushSections();
+        }
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
     }
 
     /**

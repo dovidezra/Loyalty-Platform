@@ -541,12 +541,23 @@ class Grammar extends BaseGrammar
      */
     protected function compileOrders(Builder $query, $orders)
     {
+<<<<<<< HEAD
         if (! empty($orders)) {
             return 'order by '.implode(', ', $this->compileOrdersToArray($query, $orders));
         }
 
         return '';
     }
+=======
+        if (empty($orders)) {
+            return '';
+        }
+
+        return 'order by '.implode(', ', array_map(function ($order) {
+            if (isset($order['sql'])) {
+                return $order['sql'];
+            }
+>>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
 
     /**
      * Compile the query orders to an array.
