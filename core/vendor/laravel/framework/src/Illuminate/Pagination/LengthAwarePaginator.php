@@ -48,7 +48,7 @@ class LengthAwarePaginator extends AbstractPaginator implements Arrayable, Array
         $this->perPage = $perPage;
         $this->lastPage = (int) ceil($total / $perPage);
         $this->path = $this->path != '/' ? rtrim($this->path, '/') : $this->path;
-        $this->currentPage = $this->setCurrentPage($currentPage, $this->lastPage);
+        $this->currentPage = $this->setCurrentPage($currentPage, $this->pageName);
         $this->items = $items instanceof Collection ? $items : Collection::make($items);
     }
 
@@ -56,14 +56,79 @@ class LengthAwarePaginator extends AbstractPaginator implements Arrayable, Array
      * Get the current page for the request.
      *
      * @param  int  $currentPage
-     * @param  int  $lastPage
+     * @param  string  $pageName
      * @return int
      */
-    protected function setCurrentPage($currentPage, $lastPage)
+    protected function setCurrentPage($currentPage, $pageName)
     {
-        $currentPage = $currentPage ?: static::resolveCurrentPage();
+        $currentPage = $currentPage ?: static::resolveCurrentPage($pageName);
 
         return $this->isValidPageNumber($currentPage) ? (int) $currentPage : 1;
+    }
+
+    /**
+     * Render the paginator using the given view.
+     *
+     * @param  string  $view
+     * @param  array  $data
+     * @return string
+     */
+    public function links($view = null, $data = [])
+    {
+        return $this->render($view, $data);
+    }
+
+    /**
+     * Render the paginator using the given view.
+     *
+     * @param  string  $view
+     * @param  array  $data
+     * @return string
+     */
+    public function render($view = null, $data = [])
+    {
+        return new HtmlString(static::viewFactory()->make($view ?: static::$defaultView, array_merge($data, [
+            'paginator' => $this,
+            'elements' => $this->elements(),
+        ]))->render());
+    }
+
+    /**
+     * Get the array of elements to pass to the view.
+     *
+     * @return array
+     */
+    protected function elements()
+    {
+        $window = UrlWindow::make($this);
+
+        return array_filter([
+            $window['first'],
+            is_array($window['slider']) ? '...' : null,
+            $window['slider'],
+            is_array($window['last']) ? '...' : null,
+            $window['last'],
+        ]);
+    }
+
+    /**
+     * Get the total number of items being paginated.
+     *
+     * @return int
+     */
+    public function total()
+    {
+        return $this->total;
+    }
+
+    /**
+     * Determine if there are more items in the data source.
+     *
+     * @return bool
+     */
+    public function hasMorePages()
+    {
+        return $this->currentPage() < $this->lastPage();
     }
 
     /**
@@ -79,26 +144,6 @@ class LengthAwarePaginator extends AbstractPaginator implements Arrayable, Array
     }
 
     /**
-     * Determine if there are more items in the data source.
-     *
-     * @return bool
-     */
-    public function hasMorePages()
-    {
-        return $this->currentPage() < $this->lastPage();
-    }
-
-    /**
-     * Get the total number of items being paginated.
-     *
-     * @return int
-     */
-    public function total()
-    {
-        return $this->total;
-    }
-
-    /**
      * Get the last page.
      *
      * @return int
@@ -106,41 +151,6 @@ class LengthAwarePaginator extends AbstractPaginator implements Arrayable, Array
     public function lastPage()
     {
         return $this->lastPage;
-    }
-
-    /**
-     * Render the paginator using the given view.
-     *
-     * @param  string  $view
-     * @return string
-     */
-    public function links($view = null)
-    {
-        return $this->render($view);
-    }
-
-    /**
-     * Render the paginator using the given view.
-     *
-     * @param  string  $view
-     * @return string
-     */
-    public function render($view = null)
-    {
-        $window = UrlWindow::make($this);
-
-        $elements = [
-            $window['first'],
-            is_array($window['slider']) ? '...' : null,
-            $window['slider'],
-            is_array($window['last']) ? '...' : null,
-            $window['last'],
-        ];
-
-        return new HtmlString(static::viewFactory()->make($view ?: static::$defaultView, [
-            'paginator' => $this,
-            'elements' => array_filter($elements),
-        ])->render());
     }
 
     /**
