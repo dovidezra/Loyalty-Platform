@@ -53,11 +53,7 @@ class ExifCommand extends BaseCommand
                 continue;
             }
 
-<<<<<<< HEAD
             $exif[substr($key, 5)] = $value;
-=======
-            $exif[substr($key, 6)] = $value;
->>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
         }
 
         $this->setOutput($exif);

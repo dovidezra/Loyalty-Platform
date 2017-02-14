@@ -64,13 +64,10 @@ class AuthenticateSession
      */
     protected function storePasswordHashInSession($request)
     {
-<<<<<<< HEAD
         if (! $request->user()) {
             return;
         }
 
-=======
->>>>>>> 7ac4634153a5f74a4bb46f5763b8a8ea5d024577
         $request->session()->put([
             'password_hash' => $request->user()->password,
         ]);
