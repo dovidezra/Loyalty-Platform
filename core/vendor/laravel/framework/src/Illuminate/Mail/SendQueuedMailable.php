@@ -17,7 +17,7 @@ class SendQueuedMailable
     /**
      * Create a new job instance.
      *
-     * @param  \Illuminate\Contracts\Mail\Mailable  $mailable
+     * @param  MailableContract  $mailable
      * @return void
      */
     public function __construct(MailableContract $mailable)
@@ -28,21 +28,11 @@ class SendQueuedMailable
     /**
      * Handle the queued job.
      *
-     * @param  \Illuminate\Contracts\Mail\Mailer  $mailer
+     * @param  MailerContract  $mailer
      * @return void
      */
     public function handle(MailerContract $mailer)
     {
         $mailer->send($this->mailable);
-    }
-
-    /**
-     * Get the display name for the queued job.
-     *
-     * @return string
-     */
-    public function displayName()
-    {
-        return get_class($this->mailable);
     }
 }

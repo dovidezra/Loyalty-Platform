@@ -18,8 +18,10 @@ class MemcachedConnector
      *
      * @throws \RuntimeException
      */
-    public function connect(array $servers, $connectionId = null, array $options = [], array $credentials = [])
-    {
+    public function connect(
+        array $servers, $connectionId = null,
+        array $options = [], array $credentials = []
+    ) {
         $memcached = $this->getMemcached(
             $connectionId, $credentials, $options
         );

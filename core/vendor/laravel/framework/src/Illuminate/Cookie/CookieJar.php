@@ -21,7 +21,7 @@ class CookieJar implements JarContract
      *
      * @var string
      */
-    protected $domain;
+    protected $domain = null;
 
     /**
      * The default secure setting (defaults to false).
@@ -113,15 +113,14 @@ class CookieJar implements JarContract
     /**
      * Queue a cookie to send with the next response.
      *
-     * @param  array  $parameters
      * @return void
      */
-    public function queue(...$parameters)
+    public function queue()
     {
-        if (head($parameters) instanceof Cookie) {
-            $cookie = head($parameters);
+        if (head(func_get_args()) instanceof Cookie) {
+            $cookie = head(func_get_args());
         } else {
-            $cookie = call_user_func_array([$this, 'make'], $parameters);
+            $cookie = call_user_func_array([$this, 'make'], func_get_args());
         }
 
         $this->queued[$cookie->getName()] = $cookie;

@@ -75,7 +75,8 @@ class Location
     }
 
     /**
-     * Retrieve the users location.
+     * Returns the driver's location object. If a field is specified it will
+     * return the matching location objects variable.
      *
      * @param string $ip
      *
@@ -101,6 +102,8 @@ class Location
     /**
      * Returns the client IP address. Will return the set config IP if localhost
      * testing is set to true.
+     *
+     * @thanks https://github.com/Torann/laravel-4-geoip/blob/master/src/Torann/GeoIP/GeoIP.php
      *
      * @return string
      */

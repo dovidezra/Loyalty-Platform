@@ -131,8 +131,7 @@ class Unique
     /**
      * Register a custom query callback.
      *
-     * @param  \Closure $callback
-     * @return $this
+     * @param  \Closure  $callback
      */
     public function using(Closure $callback)
     {
@@ -173,7 +172,7 @@ class Unique
         return rtrim(sprintf('unique:%s,%s,%s,%s,%s',
             $this->table,
             $this->column,
-            $this->ignore ? '"'.$this->ignore.'"' : 'NULL',
+            $this->ignore ?: 'NULL',
             $this->idColumn,
             $this->formatWheres()
         ), ',');

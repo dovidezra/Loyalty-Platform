@@ -16,14 +16,14 @@ class SqsQueue extends Queue implements QueueContract
     protected $sqs;
 
     /**
-     * The name of the default queue.
+     * The name of the default tube.
      *
      * @var string
      */
     protected $default;
 
     /**
-     * The queue URL prefix.
+     * The sqs prefix url.
      *
      * @var string
      */
@@ -80,9 +80,11 @@ class SqsQueue extends Queue implements QueueContract
      */
     public function pushRaw($payload, $queue = null, array $options = [])
     {
-        return $this->sqs->sendMessage([
+        $response = $this->sqs->sendMessage([
             'QueueUrl' => $this->getQueue($queue), 'MessageBody' => $payload,
-        ])->get('MessageId');
+        ]);
+
+        return $response->get('MessageId');
     }
 
     /**
@@ -96,10 +98,14 @@ class SqsQueue extends Queue implements QueueContract
      */
     public function later($delay, $job, $data = '', $queue = null)
     {
+        $payload = $this->createPayload($job, $data);
+
+        $delay = $this->getSeconds($delay);
+
         return $this->sqs->sendMessage([
             'QueueUrl' => $this->getQueue($queue),
-            'MessageBody' => $this->createPayload($job, $data),
-            'DelaySeconds' => $this->secondsUntil($delay),
+            'MessageBody' => $payload,
+            'DelaySeconds' => $delay,
         ])->get('MessageId');
     }
 
@@ -111,16 +117,15 @@ class SqsQueue extends Queue implements QueueContract
      */
     public function pop($queue = null)
     {
+        $queue = $this->getQueue($queue);
+
         $response = $this->sqs->receiveMessage([
-            'QueueUrl' => $queue = $this->getQueue($queue),
+            'QueueUrl' => $queue,
             'AttributeNames' => ['ApproximateReceiveCount'],
         ]);
 
         if (count($response['Messages']) > 0) {
-            return new SqsJob(
-                $this->container, $this->sqs, $response['Messages'][0],
-                $this->connectionName, $queue
-            );
+            return new SqsJob($this->container, $this->sqs, $queue, $response['Messages'][0]);
         }
     }
 
@@ -134,8 +139,11 @@ class SqsQueue extends Queue implements QueueContract
     {
         $queue = $queue ?: $this->default;
 
-        return filter_var($queue, FILTER_VALIDATE_URL) === false
-                        ? rtrim($this->prefix, '/').'/'.$queue : $queue;
+        if (filter_var($queue, FILTER_VALIDATE_URL) !== false) {
+            return $queue;
+        }
+
+        return rtrim($this->prefix, '/').'/'.($queue);
     }
 
     /**

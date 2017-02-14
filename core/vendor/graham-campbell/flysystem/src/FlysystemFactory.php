@@ -113,17 +113,9 @@ class FlysystemFactory
      */
     protected function getOptions(array $config)
     {
-        $options = [];
-
         if ($visibility = array_get($config, 'visibility')) {
-            $options['visibility'] = $visibility;
+            return compact('visibility');
         }
-
-        if ($pirate = array_get($config, 'pirate')) {
-            $options['disable_asserts'] = $pirate;
-        }
-
-        return $options;
     }
 
     /**

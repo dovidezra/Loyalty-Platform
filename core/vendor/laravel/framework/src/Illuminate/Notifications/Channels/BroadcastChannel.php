@@ -5,7 +5,6 @@ namespace Illuminate\Notifications\Channels;
 use RuntimeException;
 use Illuminate\Notifications\Notification;
 use Illuminate\Contracts\Events\Dispatcher;
-use Illuminate\Notifications\Messages\BroadcastMessage;
 use Illuminate\Notifications\Events\BroadcastNotificationCreated;
 
 class BroadcastChannel
@@ -37,18 +36,9 @@ class BroadcastChannel
      */
     public function send($notifiable, Notification $notification)
     {
-        $message = $this->getData($notifiable, $notification);
-
-        $event = new BroadcastNotificationCreated(
-            $notifiable, $notification, is_array($message) ? $message : $message->data
-        );
-
-        if ($message instanceof BroadcastMessage) {
-            $event->onConnection($message->connection)
-                  ->onQueue($message->queue);
-        }
-
-        return $this->events->dispatch($event);
+        return $this->events->fire(new BroadcastNotificationCreated(
+            $notifiable, $notification, $this->getData($notifiable, $notification)
+        ));
     }
 
     /**
@@ -56,7 +46,7 @@ class BroadcastChannel
      *
      * @param  mixed  $notifiable
      * @param  \Illuminate\Notifications\Notification  $notification
-     * @return mixed
+     * @return array
      *
      * @throws \RuntimeException
      */

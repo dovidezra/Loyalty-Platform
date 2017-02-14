@@ -55,8 +55,9 @@
  * @author Naoki Sawada
  * @license New BSD
  */
-class elFinderPluginNormalizer extends elFinderPlugin
+class elFinderPluginNormalizer
 {
+	private $opts = array();
 	private $replaced = array();
 	private $keyMap = array(
 		'ls' => 'intersect',
@@ -76,7 +77,7 @@ class elFinderPluginNormalizer extends elFinderPlugin
 	}
 	
 	public function cmdPreprocess($cmd, &$args, $elfinder, $volume) {
-		$opts = $this->getCurrentOpts($volume);
+		$opts = $this->getOpts($volume);
 		if (! $opts['enable']) {
 			return false;
 		}
@@ -113,7 +114,7 @@ class elFinderPluginNormalizer extends elFinderPlugin
 	}
 	
 	public function onUpLoadPreSave(&$path, &$name, $src, $elfinder, $volume) {
-		$opts = $this->getCurrentOpts($volume);
+		$opts = $this->getOpts($volume);
 		if (! $opts['enable']) {
 			return false;
 		}
@@ -123,6 +124,17 @@ class elFinderPluginNormalizer extends elFinderPlugin
 		}
 		$name = $this->normalize($name, $opts);
 		return true;
+	}
+	
+	private function getOpts($volume) {
+		$opts = $this->opts;
+		if (is_object($volume)) {
+			$volOpts = $volume->getOptionsPlugin('Normalizer');
+			if (is_array($volOpts)) {
+				$opts = array_merge($this->opts, $volOpts);
+			}
+		}
+		return $opts;
 	}
 	
 	private function normalize($str, $opts) {

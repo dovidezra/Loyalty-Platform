@@ -50,7 +50,6 @@ return [
             // 'endpoint'        => 'your-url',
             // 'prefix'          => 'your-prefix',
             // 'visibility'      => 'public',
-            // 'pirate'          => false,
             // 'eventable'       => true,
             // 'cache'           => 'foo'
         ],
@@ -61,7 +60,6 @@ return [
             'api-key'      => 'your-api-key',
             'container'    => 'your-container',
             // 'visibility'   => 'public',
-            // 'pirate'       => false,
             // 'eventable'    => true,
             // 'cache'        => 'foo'
         ],
@@ -74,7 +72,6 @@ return [
             'token-secret'    => 'your-token-secret',
             // 'prefix'          => 'your-prefix',
             // 'visibility'      => 'public',
-            // 'pirate'          => false,
             // 'eventable'       => true,
             // 'cache'           => 'foo'
         ],
@@ -85,7 +82,6 @@ return [
             'app'        => 'your-app',
             // 'prefix'     => 'your-prefix',
             // 'visibility' => 'public',
-            // 'pirate'     => false,
             // 'eventable'  => true,
             // 'cache'      => 'foo'
         ],
@@ -101,7 +97,6 @@ return [
             // 'ssl'        => true,
             // 'timeout'    => 20,
             // 'visibility' => 'public',
-            // 'pirate'     => false,
             // 'eventable'  => true,
             // 'cache'      => 'foo'
         ],
@@ -111,7 +106,6 @@ return [
             'server'     => 'mongodb://localhost:27017',
             'database'   => 'your-database',
             // 'visibility' => 'public',
-            // 'pirate'     => false,
             // 'eventable'  => true,
             // 'cache'      => 'foo'
         ],
@@ -120,7 +114,6 @@ return [
             'driver'     => 'local',
             'path'       => storage_path('files'),
             // 'visibility' => 'public',
-            // 'pirate'     => false,
             // 'eventable'  => true,
             // 'cache'      => 'foo'
         ],
@@ -140,7 +133,6 @@ return [
             'container'  => 'your-container',
             // 'internal'   => false,
             // 'visibility' => 'public',
-            // 'pirate'     => false,
             // 'eventable'  => true,
             // 'cache'      => 'foo'
         ],
@@ -150,7 +142,6 @@ return [
             'source'     => 'your-source-adapter',
             'replica'    => 'your-replica-adapter',
             // 'visibility' => 'public',
-            // 'pirate'     => false,
             // 'eventable'  => true,
             // 'cache'      => 'foo'
         ],
@@ -165,7 +156,6 @@ return [
             // 'root'       => '/path/to/root',
             // 'timeout'    => 20,
             // 'visibility' => 'public',
-            // 'pirate'     => false,
             // 'eventable'  => true,
             // 'cache'      => 'foo'
         ],
@@ -176,7 +166,6 @@ return [
             'userName'   => 'your-username',
             'password'   => 'your-password',
             // 'visibility' => 'public',
-            // 'pirate'     => false,
             // 'eventable'  => true,
             // 'cache'      => 'foo'
         ],
@@ -185,7 +174,6 @@ return [
             'driver'     => 'zip',
             'path'       => storage_path('files.zip'),
             // 'visibility' => 'public',
-            // 'pirate'     => false,
             // 'eventable'  => true,
             // 'cache'      => 'foo'
         ],

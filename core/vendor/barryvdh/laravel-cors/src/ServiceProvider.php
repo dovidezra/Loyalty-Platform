@@ -37,11 +37,7 @@ class ServiceProvider extends BaseServiceProvider
     {
         $this->publishes([$this->configPath() => config_path('cors.php')]);
 
-        if (method_exists($this->app['router'], 'aliasMiddleware')) {
-            $this->app['router']->aliasMiddleware('cors', HandleCors::class);
-        } else {
-            $this->app['router']->middleware('cors', HandleCors::class);
-        }
+        $this->app['router']->middleware('cors', HandleCors::class);
 
         if ($request->isMethod('OPTIONS')) {
             $kernel->prependMiddleware(HandlePreflight::class);

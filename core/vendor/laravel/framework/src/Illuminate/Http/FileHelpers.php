@@ -2,17 +2,8 @@
 
 namespace Illuminate\Http;
 
-use Illuminate\Support\Str;
-
 trait FileHelpers
 {
-    /**
-     * The cache copy of the file's hash name.
-     *
-     * @var string
-     */
-    protected $hashName = null;
-
     /**
      * Get the fully qualified path to the file.
      *
@@ -44,7 +35,7 @@ trait FileHelpers
     }
 
     /**
-     * Get a filename for the file.
+     * Get a filename for the file that is the MD5 hash of the contents.
      *
      * @param  string  $path
      * @return string
@@ -55,8 +46,6 @@ trait FileHelpers
             $path = rtrim($path, '/').'/';
         }
 
-        $hash = $this->hashName ?: $this->hashName = Str::random(40);
-
-        return $path.$hash.'.'.$this->guessExtension();
+        return $path.md5_file($this->getRealPath()).'.'.$this->guessExtension();
     }
 }

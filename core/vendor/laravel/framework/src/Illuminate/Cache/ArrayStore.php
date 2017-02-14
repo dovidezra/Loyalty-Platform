@@ -95,13 +95,11 @@ class ArrayStore extends TaggableStore implements Store
     /**
      * Remove all items from the cache.
      *
-     * @return bool
+     * @return void
      */
     public function flush()
     {
         $this->storage = [];
-
-        return true;
     }
 
     /**

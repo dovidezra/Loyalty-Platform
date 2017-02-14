@@ -4,16 +4,16 @@ namespace Illuminate\Queue;
 
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
+use Illuminate\Redis\Database;
 use Illuminate\Queue\Jobs\RedisJob;
-use Illuminate\Contracts\Redis\Factory as Redis;
 use Illuminate\Contracts\Queue\Queue as QueueContract;
 
 class RedisQueue extends Queue implements QueueContract
 {
     /**
-     * The Redis factory implementation.
+     * The Redis database instance.
      *
-     * @var \Illuminate\Contracts\Redis\Factory
+     * @var \Illuminate\Redis\Database
      */
     protected $redis;
 
@@ -36,23 +36,24 @@ class RedisQueue extends Queue implements QueueContract
      *
      * @var int|null
      */
-    protected $retryAfter = 60;
+    protected $expire = 60;
 
     /**
      * Create a new Redis queue instance.
      *
-     * @param  \Illuminate\Contracts\Redis\Factory  $redis
+     * @param  \Illuminate\Redis\Database  $redis
      * @param  string  $default
      * @param  string  $connection
-     * @param  int  $retryAfter
+     * @param  int  $expire
      * @return void
      */
-    public function __construct(Redis $redis, $default = 'default', $connection = null, $retryAfter = 60)
+    public function __construct(Database $redis, $default = 'default',
+                                $connection = null, $expire = 60)
     {
         $this->redis = $redis;
+        $this->expire = $expire;
         $this->default = $default;
         $this->connection = $connection;
-        $this->retryAfter = $retryAfter;
     }
 
     /**
@@ -65,15 +66,13 @@ class RedisQueue extends Queue implements QueueContract
     {
         $queue = $this->getQueue($queue);
 
-        return $this->getConnection()->eval(
-            LuaScripts::size(), 3, $queue, $queue.':delayed', $queue.':reserved'
-        );
+        return $this->getConnection()->eval(LuaScripts::size(), 3, $queue, $queue.':delayed', $queue.':reserved');
     }
 
     /**
      * Push a new job onto the queue.
      *
-     * @param  object|string  $job
+     * @param  string  $job
      * @param  mixed   $data
      * @param  string  $queue
      * @return mixed
@@ -102,47 +101,20 @@ class RedisQueue extends Queue implements QueueContract
      * Push a new job onto the queue after a delay.
      *
      * @param  \DateTime|int  $delay
-     * @param  object|string  $job
+     * @param  string  $job
      * @param  mixed   $data
      * @param  string  $queue
      * @return mixed
      */
     public function later($delay, $job, $data = '', $queue = null)
     {
-        return $this->laterRaw($delay, $this->createPayload($job, $data), $queue);
-    }
+        $payload = $this->createPayload($job, $data);
 
-    /**
-     * Push a raw job onto the queue after a delay.
-     *
-     * @param  \DateTime|int  $delay
-     * @param  string  $payload
-     * @param  string  $queue
-     * @return mixed
-     */
-    protected function laterRaw($delay, $payload, $queue = null)
-    {
         $this->getConnection()->zadd(
-            $this->getQueue($queue).':delayed', $this->availableAt($delay), $payload
+            $this->getQueue($queue).':delayed', $this->getTime() + $this->getSeconds($delay), $payload
         );
 
         return Arr::get(json_decode($payload, true), 'id');
-    }
-
-    /**
-     * Create a payload string from the given job and data.
-     *
-     * @param  string  $job
-     * @param  mixed   $data
-     * @param  string  $queue
-     * @return string
-     */
-    protected function createPayloadArray($job, $data = '', $queue = null)
-    {
-        return array_merge(parent::createPayloadArray($job, $data, $queue), [
-            'id' => $this->getRandomId(),
-            'attempts' => 0,
-        ]);
     }
 
     /**
@@ -153,78 +125,42 @@ class RedisQueue extends Queue implements QueueContract
      */
     public function pop($queue = null)
     {
-        $this->migrate($prefixed = $this->getQueue($queue));
+        $original = $queue ?: $this->default;
 
-        list($job, $reserved) = $this->retrieveNextJob($prefixed);
+        $queue = $this->getQueue($queue);
 
-        if ($reserved) {
-            return new RedisJob(
-                $this->container, $this, $job,
-                $reserved, $this->connectionName, $queue ?: $this->default
-            );
-        }
-    }
-
-    /**
-     * Migrate any delayed or expired jobs onto the primary queue.
-     *
-     * @param  string  $queue
-     * @return void
-     */
-    protected function migrate($queue)
-    {
         $this->migrateExpiredJobs($queue.':delayed', $queue);
 
-        if (! is_null($this->retryAfter)) {
+        if (! is_null($this->expire)) {
             $this->migrateExpiredJobs($queue.':reserved', $queue);
         }
-    }
 
-    /**
-     * Migrate the delayed jobs that are ready to the regular queue.
-     *
-     * @param  string  $from
-     * @param  string  $to
-     * @return array
-     */
-    public function migrateExpiredJobs($from, $to)
-    {
-        return $this->getConnection()->eval(
-            LuaScripts::migrateExpiredJobs(), 2, $from, $to, $this->currentTime()
+        list($job, $reserved) = $this->getConnection()->eval(
+            LuaScripts::pop(), 2, $queue, $queue.':reserved', $this->getTime() + $this->expire
         );
-    }
 
-    /**
-     * Retrieve the next job from the queue.
-     *
-     * @param  string  $queue
-     * @return array
-     */
-    protected function retrieveNextJob($queue)
-    {
-        return $this->getConnection()->eval(
-            LuaScripts::pop(), 2, $queue, $queue.':reserved',
-            $this->availableAt($this->retryAfter)
-        );
+        if ($reserved) {
+            return new RedisJob($this->container, $this, $job, $reserved, $original);
+        }
     }
 
     /**
      * Delete a reserved job from the queue.
      *
      * @param  string  $queue
-     * @param  \Illuminate\Queues\Jobs\RedisJob  $job
+     * @param  string  $job
      * @return void
      */
     public function deleteReserved($queue, $job)
     {
-        $this->getConnection()->zrem($this->getQueue($queue).':reserved', $job->getReservedJob());
+        $this->getConnection()->zrem($this->getQueue($queue).':reserved', $job);
     }
 
     /**
      * Delete a reserved job from the reserved queue and release it.
      *
      * @param  string  $queue
-     * @param  \Illuminate\Queues\Jobs\RedisJob  $job
+     * @param  string  $job
      * @param  int  $delay
      * @return void
      */
@@ -234,8 +170,39 @@ class RedisQueue extends Queue implements QueueContract
 
         $this->getConnection()->eval(
             LuaScripts::release(), 2, $queue.':delayed', $queue.':reserved',
-            $job->getReservedJob(), $this->availableAt($delay)
+            $job, $this->getTime() + $delay
         );
+    }
+
+    /**
+     * Migrate the delayed jobs that are ready to the regular queue.
+     *
+     * @param  string  $from
+     * @param  string  $to
+     * @return void
+     */
+    public function migrateExpiredJobs($from, $to)
+    {
+        $this->getConnection()->eval(
+            LuaScripts::migrateExpiredJobs(), 2, $from, $to, $this->getTime()
+        );
+    }
+
+    /**
+     * Create a payload string from the given job and data.
+     *
+     * @param  string  $job
+     * @param  mixed   $data
+     * @param  string  $queue
+     * @return string
+     */
+    protected function createPayload($job, $data = '', $queue = null)
+    {
+        $payload = $this->setMeta(
+            parent::createPayload($job, $data), 'id', $this->getRandomId()
+        );
+
+        return $this->setMeta($payload, 'attempts', 1);
     }
 
     /**
@@ -272,7 +239,7 @@ class RedisQueue extends Queue implements QueueContract
     /**
      * Get the underlying Redis instance.
      *
-     * @return \Illuminate\Contracts\Redis\Factory
+     * @return \Illuminate\Redis\Database
      */
     public function getRedis()
     {

@@ -142,6 +142,15 @@ window.elFinderSupportVer1 = function(upload) {
 			})
 			.done(function(raw) {
 				data = self.normalize(cmd, raw);
+				
+				if (cmd == 'paste') {
+					if (! data.error && ! data.added.length && ! data.removed.length && ! data.changed.length) {
+						data.error = [opts.data.cut? 'errMove' : 'errCopy', fm.i18n('items'), 'errExists', fm.file(opts.data.targets[0]).name];
+					}
+					if (! data.error) {
+						fm.sync();
+					}
+				}
 				dfrd.resolve(data);
 			})
 			
@@ -283,9 +292,6 @@ window.elFinderSupportVer1 = function(upload) {
 					removed : [],
 					changed : []
 				};
-			}
-			if (cmd === 'paste') {
-				diff.sync = true;
 			}
 		}
 		

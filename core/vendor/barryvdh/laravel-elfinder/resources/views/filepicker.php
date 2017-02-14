@@ -37,7 +37,6 @@
                     _token: '<?= csrf_token() ?>'
                 },
                 url: '<?= route("elfinder.connector") ?>',  // connector URL
-                soundPath: '<?= asset($dir.'/sounds') ?>',
                 resizable: false,
                 ui: ['toolbar', 'path','stat'],
                 onlyMimes: [<?= $mimeTypes ?>],
@@ -48,6 +47,7 @@
                     window.parent.processSelectedFile(file, '<?= $input_id?>');
                     console.log(file);
                 },
+
                 uiOptions : {
                     // toolbar configuration
                     toolbar : [

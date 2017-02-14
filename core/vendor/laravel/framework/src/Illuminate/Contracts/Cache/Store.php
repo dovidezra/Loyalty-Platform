@@ -79,7 +79,7 @@ interface Store
     /**
      * Remove all items from the cache.
      *
-     * @return bool
+     * @return void
      */
     public function flush();
 

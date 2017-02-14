@@ -65,7 +65,6 @@ class HandlePreflight
 
 			return in_array(HandleCors::class, $middleware);
 		} catch (\Exception $e){
-			app('log')->error($e);
 			return false;
 		}
 	}

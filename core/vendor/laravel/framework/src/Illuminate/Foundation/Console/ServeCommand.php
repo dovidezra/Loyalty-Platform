@@ -34,44 +34,17 @@ class ServeCommand extends Command
     {
         chdir($this->laravel->publicPath());
 
-        $this->line("<info>Laravel development server started:</info> <http://{$this->host()}:{$this->port()}>");
+        $host = $this->input->getOption('host');
 
-        passthru($this->serverCommand());
-    }
+        $port = $this->input->getOption('port');
 
-    /**
-     * Get the full server command.
-     *
-     * @return string
-     */
-    protected function serverCommand()
-    {
-        return sprintf('%s -S %s:%s %s/server.php',
-            ProcessUtils::escapeArgument((new PhpExecutableFinder)->find(false)),
-            $this->host(),
-            $this->port(),
-            ProcessUtils::escapeArgument($this->laravel->basePath())
-        );
-    }
+        $base = ProcessUtils::escapeArgument($this->laravel->basePath());
 
-    /**
-     * Get the host for the command.
-     *
-     * @return string
-     */
-    protected function host()
-    {
-        return $this->input->getOption('host');
-    }
+        $binary = ProcessUtils::escapeArgument((new PhpExecutableFinder)->find(false));
 
-    /**
-     * Get the port for the command.
-     *
-     * @return string
-     */
-    protected function port()
-    {
-        return $this->input->getOption('port');
+        $this->info("Laravel development server started on http://{$host}:{$port}/");
+
+        passthru("{$binary} -S {$host}:{$port} {$base}/server.php");
     }
 
     /**
@@ -82,7 +55,7 @@ class ServeCommand extends Command
     protected function getOptions()
     {
         return [
-            ['host', null, InputOption::VALUE_OPTIONAL, 'The host address to serve the application on.', '127.0.0.1'],
+            ['host', null, InputOption::VALUE_OPTIONAL, 'The host address to serve the application on.', 'localhost'],
 
             ['port', null, InputOption::VALUE_OPTIONAL, 'The port to serve the application on.', 8000],
         ];

@@ -66,7 +66,6 @@
                     _token: '<?= csrf_token() ?>'
                 },
                 url : '<?= route("elfinder.connector") ?>',  // connector URL
-                soundPath: '<?= asset($dir.'/sounds') ?>',
                 getFileCallback: function(file) { // editor callback
                     FileBrowserDialogue.mySubmit(file.url); // pass selected file path to TinyMCE
                 }

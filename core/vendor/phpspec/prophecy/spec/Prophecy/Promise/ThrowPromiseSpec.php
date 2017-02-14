@@ -3,8 +3,6 @@
 namespace spec\Prophecy\Promise;
 
 use PhpSpec\ObjectBehavior;
-use Prophecy\Prophecy\MethodProphecy;
-use Prophecy\Prophecy\ObjectProphecy;
 
 class ThrowPromiseSpec extends ObjectBehavior
 {
@@ -18,7 +16,11 @@ class ThrowPromiseSpec extends ObjectBehavior
         $this->shouldBeAnInstanceOf('Prophecy\Promise\PromiseInterface');
     }
 
-    function it_instantiates_and_throws_exception_from_provided_classname(ObjectProphecy $object, MethodProphecy $method)
+    /**
+     * @param \Prophecy\Prophecy\ObjectProphecy $object
+     * @param \Prophecy\Prophecy\MethodProphecy $method
+     */
+    function it_instantiates_and_throws_exception_from_provided_classname($object, $method)
     {
         $this->beConstructedWith('InvalidArgumentException');
 
@@ -26,7 +28,11 @@ class ThrowPromiseSpec extends ObjectBehavior
             ->duringExecute(array(), $object, $method);
     }
 
-    function it_instantiates_exceptions_with_required_arguments(ObjectProphecy $object, MethodProphecy $method)
+    /**
+     * @param \Prophecy\Prophecy\ObjectProphecy $object
+     * @param \Prophecy\Prophecy\MethodProphecy $method
+     */
+    function it_instantiates_exceptions_with_required_arguments($object, $method)
     {
         $this->beConstructedWith('spec\Prophecy\Promise\RequiredArgumentException');
 
@@ -34,7 +40,11 @@ class ThrowPromiseSpec extends ObjectBehavior
             ->duringExecute(array(), $object, $method);
     }
 
-    function it_throws_provided_exception(ObjectProphecy $object, MethodProphecy $method)
+    /**
+     * @param \Prophecy\Prophecy\ObjectProphecy $object
+     * @param \Prophecy\Prophecy\MethodProphecy $method
+     */
+    function it_throws_provided_exception($object, $method)
     {
         $this->beConstructedWith($exc = new \RuntimeException('Some exception'));
 

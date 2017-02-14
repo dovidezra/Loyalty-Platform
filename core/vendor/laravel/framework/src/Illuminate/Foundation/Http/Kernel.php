@@ -7,8 +7,8 @@ use Throwable;
 use Illuminate\Routing\Router;
 use Illuminate\Routing\Pipeline;
 use Illuminate\Support\Facades\Facade;
-use Illuminate\Contracts\Debug\ExceptionHandler;
 use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Contracts\Debug\ExceptionHandler;
 use Illuminate\Contracts\Http\Kernel as KernelContract;
 use Symfony\Component\Debug\Exception\FatalThrowableError;
 
@@ -34,12 +34,13 @@ class Kernel implements KernelContract
      * @var array
      */
     protected $bootstrappers = [
-        \Illuminate\Foundation\Bootstrap\LoadEnvironmentVariables::class,
-        \Illuminate\Foundation\Bootstrap\LoadConfiguration::class,
-        \Illuminate\Foundation\Bootstrap\HandleExceptions::class,
-        \Illuminate\Foundation\Bootstrap\RegisterFacades::class,
-        \Illuminate\Foundation\Bootstrap\RegisterProviders::class,
-        \Illuminate\Foundation\Bootstrap\BootProviders::class,
+        'Illuminate\Foundation\Bootstrap\DetectEnvironment',
+        'Illuminate\Foundation\Bootstrap\LoadConfiguration',
+        'Illuminate\Foundation\Bootstrap\ConfigureLogging',
+        'Illuminate\Foundation\Bootstrap\HandleExceptions',
+        'Illuminate\Foundation\Bootstrap\RegisterFacades',
+        'Illuminate\Foundation\Bootstrap\RegisterProviders',
+        'Illuminate\Foundation\Bootstrap\BootProviders',
     ];
 
     /**
@@ -74,7 +75,6 @@ class Kernel implements KernelContract
         \Illuminate\Session\Middleware\StartSession::class,
         \Illuminate\View\Middleware\ShareErrorsFromSession::class,
         \Illuminate\Auth\Middleware\Authenticate::class,
-        \Illuminate\Session\Middleware\AuthenticateSession::class,
         \Illuminate\Routing\Middleware\SubstituteBindings::class,
         \Illuminate\Auth\Middleware\Authorize::class,
     ];
@@ -98,7 +98,7 @@ class Kernel implements KernelContract
         }
 
         foreach ($this->routeMiddleware as $key => $middleware) {
-            $router->aliasMiddleware($key, $middleware);
+            $router->middleware($key, $middleware);
         }
     }
 
@@ -124,7 +124,7 @@ class Kernel implements KernelContract
             $response = $this->renderException($request, $e);
         }
 
-        event(new Events\RequestHandled($request, $response));
+        $this->app['events']->fire('kernel.handled', [$request, $response]);
 
         return $response;
     }
@@ -150,32 +150,6 @@ class Kernel implements KernelContract
     }
 
     /**
-     * Bootstrap the application for HTTP requests.
-     *
-     * @return void
-     */
-    public function bootstrap()
-    {
-        if (! $this->app->hasBeenBootstrapped()) {
-            $this->app->bootstrapWith($this->bootstrappers());
-        }
-    }
-
-    /**
-     * Get the route dispatcher callback.
-     *
-     * @return \Closure
-     */
-    protected function dispatchToRouter()
-    {
-        return function ($request) {
-            $this->app->instance('request', $request);
-
-            return $this->router->dispatch($request);
-        };
-    }
-
-    /**
      * Call the terminate method on any terminable middleware.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -183,20 +157,6 @@ class Kernel implements KernelContract
      * @return void
      */
     public function terminate($request, $response)
-    {
-        $this->terminateMiddleware($request, $response);
-
-        $this->app->terminate();
-    }
-
-    /**
-     * Call the terminate method on any terminable middleware.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Illuminate\Http\Response  $response
-     * @return void
-     */
-    protected function terminateMiddleware($request, $response)
     {
         $middlewares = $this->app->shouldSkipMiddleware() ? [] : array_merge(
             $this->gatherRouteMiddleware($request),
@@ -216,6 +176,8 @@ class Kernel implements KernelContract
                 $instance->terminate($request, $response);
             }
         }
+
+        $this->app->terminate();
     }
 
     /**
@@ -251,17 +213,6 @@ class Kernel implements KernelContract
     }
 
     /**
-     * Determine if the kernel has a given middleware.
-     *
-     * @param  string  $middleware
-     * @return bool
-     */
-    public function hasMiddleware($middleware)
-    {
-        return in_array($middleware, $this->middleware);
-    }
-
-    /**
      * Add a new middleware to beginning of the stack if it does not already exist.
      *
      * @param  string  $middleware
@@ -289,6 +240,43 @@ class Kernel implements KernelContract
         }
 
         return $this;
+    }
+
+    /**
+     * Bootstrap the application for HTTP requests.
+     *
+     * @return void
+     */
+    public function bootstrap()
+    {
+        if (! $this->app->hasBeenBootstrapped()) {
+            $this->app->bootstrapWith($this->bootstrappers());
+        }
+    }
+
+    /**
+     * Get the route dispatcher callback.
+     *
+     * @return \Closure
+     */
+    protected function dispatchToRouter()
+    {
+        return function ($request) {
+            $this->app->instance('request', $request);
+
+            return $this->router->dispatch($request);
+        };
+    }
+
+    /**
+     * Determine if the kernel has a given middleware.
+     *
+     * @param  string  $middleware
+     * @return bool
+     */
+    public function hasMiddleware($middleware)
+    {
+        return in_array($middleware, $this->middleware);
     }
 
     /**

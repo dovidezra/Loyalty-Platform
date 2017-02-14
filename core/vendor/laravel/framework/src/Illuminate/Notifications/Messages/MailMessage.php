@@ -5,11 +5,14 @@ namespace Illuminate\Notifications\Messages;
 class MailMessage extends SimpleMessage
 {
     /**
-     * The view to be rendered.
+     * The view for the message.
      *
-     * @var array|string
+     * @var string
      */
-    public $view;
+    public $view = [
+        'notifications::email',
+        'notifications::email-plain',
+    ];
 
     /**
      * The view data for the message.
@@ -19,13 +22,6 @@ class MailMessage extends SimpleMessage
     public $viewData = [];
 
     /**
-     * The Markdown template to render (if applicable).
-     *
-     * @var string|null
-     */
-    public $markdown = 'notifications::email';
-
-    /**
      * The "from" information for the message.
      *
      * @var array
@@ -33,11 +29,11 @@ class MailMessage extends SimpleMessage
     public $from = [];
 
     /**
-     * The "reply to" information for the message.
+     * The recipient information for the message.
      *
      * @var array
      */
-    public $replyTo = [];
+    public $to = [];
 
     /**
      * The attachments for the message.
@@ -58,12 +54,12 @@ class MailMessage extends SimpleMessage
      *
      * @var int
      */
-    public $priority;
+    public $priority = null;
 
     /**
      * Set the view for the mail message.
      *
-     * @param  array|string  $view
+     * @param  string  $view
      * @param  array  $data
      * @return $this
      */
@@ -71,25 +67,6 @@ class MailMessage extends SimpleMessage
     {
         $this->view = $view;
         $this->viewData = $data;
-
-        $this->markdown = null;
-
-        return $this;
-    }
-
-    /**
-     * Set the Markdown template for the notification.
-     *
-     * @param  string  $view
-     * @param  array  $data
-     * @return $this
-     */
-    public function markdown($view, array $data = [])
-    {
-        $this->markdown = $view;
-        $this->viewData = $data;
-
-        $this->view = null;
 
         return $this;
     }
@@ -109,15 +86,14 @@ class MailMessage extends SimpleMessage
     }
 
     /**
-     * Set the "reply to" address of the message.
+     * Set the recipient address for the mail message.
      *
-     * @param  array|string  $address
-     * @param  string|null  $name
+     * @param  string|array  $address
      * @return $this
      */
-    public function replyTo($address, $name = null)
+    public function to($address)
     {
-        $this->replyTo = [$address, $name];
+        $this->to = $address;
 
         return $this;
     }

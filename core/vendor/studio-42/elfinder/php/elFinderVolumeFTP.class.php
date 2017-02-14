@@ -369,7 +369,7 @@ class elFinderVolumeFTP extends elFinderVolumeDriver {
 		
 		$perm = $this->parsePermissions($info[0], $owner);
 		$stat['name']  = $name;
-		$stat['mime']  = substr(strtolower($info[0]), 0, 1) == 'd' ? 'directory' : $this->mimetype($stat['name'], true);
+		$stat['mime']  = substr(strtolower($info[0]), 0, 1) == 'd' ? 'directory' : $this->mimetype($stat['name']);
 		$stat['size']  = $stat['mime'] == 'directory' ? 0 : $info[4];
 		$stat['read']  = $perm['read'];
 		$stat['write'] = $perm['write'];
@@ -433,9 +433,8 @@ class elFinderVolumeFTP extends elFinderVolumeDriver {
 	 * @return void
 	 * @author Dmitry Levashov
 	 **/
-	protected function cacheDir($path) {
-		$this->dirsCache[$path] = array();
-		$hasDir = false;
+ 	protected function cacheDir($path) {
+ 		$this->dirsCache[$path] = array();
 
 		$list = array();
 		$encPath = $this->convEncIn($path);
@@ -455,9 +454,6 @@ class elFinderVolumeFTP extends elFinderVolumeDriver {
 			} else {
 				$stat = $this->updateCache($p, $stat);
 				if (empty($stat['hidden'])) {
-					if (! $hasDir && $stat['mime'] === 'directory') {
-						$hasDir = true;
-					}
 					$this->dirsCache[$path][] = $p;
 				}
 			}
@@ -493,16 +489,10 @@ class elFinderVolumeFTP extends elFinderVolumeDriver {
 			$this->cacheDirTarget = $cacheDirTarget;
 			$stat = $this->updateCache($p, $stat);
 			if (empty($stat['hidden'])) {
-				if (! $hasDir && $stat['mime'] === 'directory') {
-					$hasDir = true;
-				}
 				$this->dirsCache[$path][] = $p;
 			}
 		}
-		
-		if (isset($this->sessionCache['subdirs'])) {
-			$this->sessionCache['subdirs'][$path] = $hasDir;
-		}
+
 	}
 
 	/**
@@ -718,26 +708,7 @@ class elFinderVolumeFTP extends elFinderVolumeDriver {
 				}
 				return $res;
 			}
-			// stat of system root
-			if ($path === $this->separator) {
-				$res = array(
-					'name' => $this->separator,
-					'mime' => 'directory',
-					'dirs' => 1
-				);
-				$this->cache[$outPath] = $res;
-				return $res;
-			}
-			$parentSubdirs = null;
-			$outParent = $this->convEncOut($this->_dirname($path));
-			if (isset($this->sessionCache['subdirs']) && isset($this->sessionCache['subdirs'][$outParent])) {
-				$parentSubdirs = $this->sessionCache['subdirs'][$outParent];
-			}
-			$this->cacheDir($outParent);
-			if ($parentSubdirs) {
-				$this->sessionCache['subdirs'][$outParent] = $parentSubdirs;
-			}
-			
+			$this->cacheDir($this->convEncOut($this->_dirname($path)));
 			$stat = $this->convEncIn(isset($this->cache[$outPath])? $this->cache[$outPath] : array());
 			if (! $this->mounted) {
 				// dispose incomplete cache made by calling `stat` by 'startPath' option

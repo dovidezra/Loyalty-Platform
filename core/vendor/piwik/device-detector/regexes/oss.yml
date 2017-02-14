@@ -90,7 +90,7 @@
   name: 'Android'
   version: ''
 
-- regex: 'BeyondPod|AntennaPod|Podkicker|DoggCatcher|Player FM|okhttp|Podcatcher Deluxe'
+- regex: 'BeyondPod|AntennaPod|Podkicker|DoggCatcher'
   name: 'Android'
   version: ''
   
@@ -444,10 +444,6 @@
   
   
 - regex: 'BlackBerry'
-  name: 'BlackBerry OS'
-  version: ''
-  
-- regex: 'bPod'
   name: 'BlackBerry OS'
   version: ''
 

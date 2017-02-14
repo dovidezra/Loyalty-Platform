@@ -31,23 +31,11 @@ class CachedAdapter implements AdapterInterface
     }
 
     /**
-     * Get the underlying Adapter implementation.
-     *
-     * @return AdapterInterface
+     * {@inheritdoc}
      */
     public function getAdapter()
     {
         return $this->adapter;
-    }
-
-    /**
-     * Get the used Cache implementation.
-     *
-     * @return CacheInterface
-     */
-    public function getCache()
-    {
-        return $this->cache;
     }
 
     /**
@@ -58,7 +46,6 @@ class CachedAdapter implements AdapterInterface
         $result = $this->adapter->write($path, $contents, $config);
 
         if ($result !== false) {
-            $result['type'] = 'file';
             $this->cache->updateObject($path, $result + compact('path', 'contents'), true);
         }
 
@@ -73,7 +60,6 @@ class CachedAdapter implements AdapterInterface
         $result = $this->adapter->writeStream($path, $resource, $config);
 
         if ($result !== false) {
-            $result['type'] = 'file';
             $contents = false;
             $this->cache->updateObject($path, $result + compact('path', 'contents'), true);
         }
@@ -89,7 +75,6 @@ class CachedAdapter implements AdapterInterface
         $result = $this->adapter->update($path, $contents, $config);
 
         if ($result !== false) {
-            $result['type'] = 'file';
             $this->cache->updateObject($path, $result + compact('path', 'contents'), true);
         }
 
@@ -104,7 +89,6 @@ class CachedAdapter implements AdapterInterface
         $result = $this->adapter->updateStream($path, $resource, $config);
 
         if ($result !== false) {
-            $result['type'] = 'file';
             $contents = false;
             $this->cache->updateObject($path, $result + compact('path', 'contents'), true);
         }

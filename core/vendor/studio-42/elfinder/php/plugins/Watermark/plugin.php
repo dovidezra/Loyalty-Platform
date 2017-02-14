@@ -21,10 +21,7 @@
  *				'quality'        => 95,         // JPEG image save quality
  *				'transparency'   => 70,         // Water mark image transparency ( other than PNG )
  *				'targetType'     => IMG_GIF|IMG_JPG|IMG_PNG|IMG_WBMP, // Target image formats ( bit-field )
- *				'targetMinPixel' => 200,        // Target image minimum pixel size
- *				'offDropWith'    => null        // To disable it if it is dropped with pressing the meta key
- *				                                // Alt: 8, Ctrl: 4, Meta: 2, Shift: 1 - sum of each value
- *				                                // In case of using any key, specify it as an array
+ *				'targetMinPixel' => 200         // Target image minimum pixel size
  *			)
  *		),
  *		// each volume configure (optional)
@@ -42,10 +39,7 @@
  *						'quality'        => 95,         // JPEG image save quality
  *						'transparency'   => 70,         // Water mark image transparency ( other than PNG )
  *						'targetType'     => IMG_GIF|IMG_JPG|IMG_PNG|IMG_WBMP, // Target image formats ( bit-field )
- *						'targetMinPixel' => 200,        // Target image minimum pixel size
- *						'offDropWith'    => null        // To disable it if it is dropped with pressing the meta key
- *						                                // Alt: 8, Ctrl: 4, Meta: 2, Shift: 1 - sum of each value
- *						                                // In case of using any key, specify it as an array
+ *						'targetMinPixel' => 200         // Target image minimum pixel size
  *					)
  *				)
  *			)
@@ -56,8 +50,9 @@
  * @author Naoki Sawada
  * @license New BSD
  */
-class elFinderPluginWatermark extends elFinderPlugin {
+class elFinderPluginWatermark {
 
+	private $opts = array();
 	private $watermarkImgInfo = null;
 
 	public function __construct($opts) {
@@ -69,10 +64,7 @@ class elFinderPluginWatermark extends elFinderPlugin {
 			'quality'        => 95,         // JPEG image save quality
 			'transparency'   => 70,         // Water mark image transparency ( other than PNG )
 			'targetType'     => IMG_GIF|IMG_JPG|IMG_PNG|IMG_WBMP, // Target image formats ( bit-field )
-			'targetMinPixel' => 200,        // Target image minimum pixel size
-			'offDropWith'    => null        // To disable it if it is dropped with pressing the meta key
-			                                // Alt: 8, Ctrl: 4, Meta: 2, Shift: 1 - sum of each value
-			                                // In case of using any key, specify it as an array
+			'targetMinPixel' => 200         // Target image minimum pixel size
 		);
 
 		$this->opts = array_merge($defaults, $opts);
@@ -80,14 +72,14 @@ class elFinderPluginWatermark extends elFinderPlugin {
 	}
 
 	public function onUpLoadPreSave(&$path, &$name, $src, $elfinder, $volume) {
-		$opts = $this->getCurrentOpts($volume);
 		
-		if (! $this->iaEnabled($opts)) {
-			return false;
+		$opts = $this->opts;
+		$volOpts = $volume->getOptionsPlugin('Watermark');
+		if (is_array($volOpts)) {
+			$opts = array_merge($this->opts, $volOpts);
 		}
 		
-		$mime = mime_content_type($src);
-		if (substr($mime, 0, 5) !== 'image') {
+		if (! $opts['enable']) {
 			return false;
 		}
 		

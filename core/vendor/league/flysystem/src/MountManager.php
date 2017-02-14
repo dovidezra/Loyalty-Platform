@@ -215,8 +215,6 @@ class MountManager
      * @param array  $keys
      * @param string $directory
      * @param bool   $recursive
-     *
-     * @return mixed
      */
     public function listWith(array $keys = [], $directory = '', $recursive = false)
     {

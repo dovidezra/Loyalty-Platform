@@ -15,7 +15,6 @@ class MockConfigurationBuilder
         '__toString',
         '__isset',
         '__destruct',
-        '__debugInfo',
 
         // below are reserved words in PHP
         "__halt_compiler", "abstract", "and", "array", "as",

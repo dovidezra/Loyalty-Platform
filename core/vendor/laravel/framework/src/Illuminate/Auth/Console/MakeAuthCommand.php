@@ -3,11 +3,11 @@
 namespace Illuminate\Auth\Console;
 
 use Illuminate\Console\Command;
-use Illuminate\Console\DetectsApplicationNamespace;
+use Illuminate\Console\AppNamespaceDetectorTrait;
 
 class MakeAuthCommand extends Command
 {
-    use DetectsApplicationNamespace;
+    use AppNamespaceDetectorTrait;
 
     /**
      * The name and signature of the console command.

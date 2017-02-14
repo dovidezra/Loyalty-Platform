@@ -140,7 +140,7 @@ abstract class AbstractProvider implements ProviderContract
         $state = null;
 
         if ($this->usesState()) {
-            $this->request->session()->put('state', $state = $this->getState());
+            $this->request->session()->set('state', $state = Str::random(40));
         }
 
         return new RedirectResponse($this->getAuthUrl($state));
@@ -168,7 +168,7 @@ abstract class AbstractProvider implements ProviderContract
     {
         $fields = [
             'client_id' => $this->clientId, 'redirect_uri' => $this->redirectUrl,
-            'scope' => $this->formatScopes($this->getScopes(), $this->scopeSeparator),
+            'scope' => $this->formatScopes($this->scopes, $this->scopeSeparator),
             'response_type' => 'code',
         ];
 
@@ -388,16 +388,6 @@ abstract class AbstractProvider implements ProviderContract
         $this->stateless = true;
 
         return $this;
-    }
-
-    /**
-     * Get the string used for session state.
-     *
-     * @return string
-     */
-    protected function getState()
-    {
-        return Str::random(40);
     }
 
     /**

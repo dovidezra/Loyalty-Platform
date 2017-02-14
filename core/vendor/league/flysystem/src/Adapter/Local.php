@@ -68,20 +68,18 @@ class Local extends AbstractAdapter
      * @param int    $writeFlags
      * @param int    $linkHandling
      * @param array  $permissions
-     *
-     * @throws LogicException
      */
     public function __construct($root, $writeFlags = LOCK_EX, $linkHandling = self::DISALLOW_LINKS, array $permissions = [])
     {
         $root = is_link($root) ? realpath($root) : $root;
         $this->permissionMap = array_replace_recursive(static::$permissions, $permissions);
-        $this->ensureDirectory($root);
+        $realRoot = $this->ensureDirectory($root);
 
-        if ( ! is_dir($root) || ! is_readable($root)) {
+        if ( ! is_dir($realRoot) || ! is_readable($realRoot)) {
             throw new LogicException('The root path ' . $root . ' is not readable.');
         }
 
-        $this->setPathPrefix($root);
+        $this->setPathPrefix($realRoot);
         $this->writeFlags = $writeFlags;
         $this->linkHandling = $linkHandling;
     }
@@ -91,7 +89,7 @@ class Local extends AbstractAdapter
      *
      * @param string $root root directory path
      *
-     * @return void
+     * @return string real path to root
      *
      * @throws Exception in case the root directory can not be created
      */
@@ -106,6 +104,8 @@ class Local extends AbstractAdapter
                 throw new Exception(sprintf('Impossible to create the root directory "%s".', $root));
             }
         }
+
+        return realpath($root);
     }
 
     /**
@@ -258,7 +258,7 @@ class Local extends AbstractAdapter
     public function listContents($directory = '', $recursive = false)
     {
         $result = [];
-        $location = $this->applyPathPrefix($directory);
+        $location = $this->applyPathPrefix($directory) . $this->pathSeparator;
 
         if ( ! is_dir($location)) {
             return [];
@@ -415,9 +415,7 @@ class Local extends AbstractAdapter
      *
      * @param SplFileInfo $file
      *
-     * @return array|void
-     *
-     * @throws NotSupportedException
+     * @return array
      */
     protected function normalizeFileInfo(SplFileInfo $file)
     {
@@ -490,6 +488,16 @@ class Local extends AbstractAdapter
         }
 
         return $normalized;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function applyPathPrefix($path)
+    {
+        $prefixedPath = parent::applyPathPrefix($path);
+
+        return str_replace('/', DIRECTORY_SEPARATOR, $prefixedPath);
     }
 
     /**

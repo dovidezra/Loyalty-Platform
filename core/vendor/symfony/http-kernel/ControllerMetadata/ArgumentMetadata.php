@@ -40,7 +40,7 @@ class ArgumentMetadata
         $this->isVariadic = $isVariadic;
         $this->hasDefaultValue = $hasDefaultValue;
         $this->defaultValue = $defaultValue;
-        $this->isNullable = $isNullable || null === $type || ($hasDefaultValue && null === $defaultValue);
+        $this->isNullable = (bool) $isNullable;
     }
 
     /**
@@ -88,7 +88,7 @@ class ArgumentMetadata
     }
 
     /**
-     * Returns whether the argument accepts null values.
+     * Returns whether the argument is nullable in PHP 7.1 or higher.
      *
      * @return bool
      */

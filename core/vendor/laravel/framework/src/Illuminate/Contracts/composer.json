@@ -23,11 +23,8 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "5.4-dev"
+            "dev-master": "5.3-dev"
         }
-    },
-    "config": {
-        "sort-packages": true
     },
     "minimum-stability": "dev"
 }

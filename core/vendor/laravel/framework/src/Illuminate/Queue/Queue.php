@@ -2,12 +2,14 @@
 
 namespace Illuminate\Queue;
 
+use DateTime;
+use Carbon\Carbon;
+use Illuminate\Support\Arr;
+use InvalidArgumentException;
 use Illuminate\Container\Container;
 
 abstract class Queue
 {
-    use InteractsWithTime;
-
     /**
      * The IoC container instance.
      *
@@ -21,13 +23,6 @@ abstract class Queue
      * @var \Illuminate\Contracts\Encryption\Encrypter
      */
     protected $encrypter;
-
-    /**
-     * The connection name for the queue.
-     *
-     * @var string
-     */
-    protected $connectionName;
 
     /**
      * Push a new job onto the queue.
@@ -79,103 +74,87 @@ abstract class Queue
      * @param  string  $queue
      * @return string
      *
-     * @throws \Illuminate\Queue\InvalidPayloadException
+     * @throws \InvalidArgumentException
      */
     protected function createPayload($job, $data = '', $queue = null)
     {
-        $payload = json_encode($this->createPayloadArray($job, $data, $queue));
+        if (is_object($job)) {
+            $payload = json_encode([
+                'job' => 'Illuminate\Queue\CallQueuedHandler@call',
+                'data' => [
+                    'commandName' => get_class($job),
+                    'command' => serialize(clone $job),
+                ],
+            ]);
+        } else {
+            $payload = json_encode($this->createPlainPayload($job, $data));
+        }
 
         if (JSON_ERROR_NONE !== json_last_error()) {
-            throw new InvalidPayloadException;
+            throw new InvalidArgumentException('Unable to create payload: '.json_last_error_msg());
         }
 
         return $payload;
     }
 
     /**
-     * Create a payload array from the given job and data.
-     *
-     * @param  string  $job
-     * @param  mixed   $data
-     * @param  string  $queue
-     * @return array
-     */
-    protected function createPayloadArray($job, $data = '', $queue = null)
-    {
-        return is_object($job)
-                    ? $this->createObjectPayload($job)
-                    : $this->createStringPayload($job, $data);
-    }
-
-    /**
-     * Create a payload for an object-based queue handler.
-     *
-     * @param  mixed  $job
-     * @return array
-     */
-    protected function createObjectPayload($job)
-    {
-        return [
-            'displayName' => $this->getDisplayName($job),
-            'job' => 'Illuminate\Queue\CallQueuedHandler@call',
-            'maxTries' => isset($job->tries) ? $job->tries : null,
-            'timeout' => isset($job->timeout) ? $job->timeout : null,
-            'data' => [
-                'commandName' => get_class($job),
-                'command' => serialize(clone $job),
-            ],
-        ];
-    }
-
-    /**
-     * Get the display name for the given job.
-     *
-     * @param  mixed  $job
-     * @return string
-     */
-    protected function getDisplayName($job)
-    {
-        return method_exists($job, 'displayName')
-                        ? $job->displayName() : get_class($job);
-    }
-
-    /**
-     * Create a typical, string based queue payload array.
+     * Create a typical, "plain" queue payload array.
      *
      * @param  string  $job
      * @param  mixed  $data
      * @return array
      */
-    protected function createStringPayload($job, $data)
+    protected function createPlainPayload($job, $data)
     {
-        return [
-            'displayName' => is_string($job) ? explode('@', $job)[0] : null,
-            'job' => $job, 'maxTries' => null,
-            'timeout' => null, 'data' => $data,
-        ];
+        return ['job' => $job, 'data' => $data];
     }
 
     /**
-     * Get the connection name for the queue.
+     * Set additional meta on a payload string.
      *
+     * @param  string  $payload
+     * @param  string  $key
+     * @param  string  $value
      * @return string
+     *
+     * @throws \InvalidArgumentException
      */
-    public function getConnectionName()
+    protected function setMeta($payload, $key, $value)
     {
-        return $this->connectionName;
+        $payload = json_decode($payload, true);
+
+        $payload = json_encode(Arr::set($payload, $key, $value));
+
+        if (JSON_ERROR_NONE !== json_last_error()) {
+            throw new InvalidArgumentException('Unable to create payload: '.json_last_error_msg());
+        }
+
+        return $payload;
     }
 
     /**
-     * Set the connection name for the queue.
+     * Calculate the number of seconds with the given delay.
      *
-     * @param  string  $name
-     * @return $this
+     * @param  \DateTime|int  $delay
+     * @return int
      */
-    public function setConnectionName($name)
+    protected function getSeconds($delay)
     {
-        $this->connectionName = $name;
+        if ($delay instanceof DateTime) {
+            return max(0, $delay->getTimestamp() - $this->getTime());
+        }
 
-        return $this;
+        return (int) $delay;
+    }
+
+    /**
+     * Get the current UNIX timestamp.
+     *
+     * @return int
+     */
+    protected function getTime()
+    {
+        return Carbon::now()->getTimestamp();
     }
 
     /**

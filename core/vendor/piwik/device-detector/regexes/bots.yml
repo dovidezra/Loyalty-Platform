@@ -69,14 +69,6 @@
     name: 'Apple Inc'
     url: 'http://www.apple.com'
 
-- regex: 'Castro 2, Episode Duration Lookup'
-  name: 'Castro 2'
-  category: 'Service Agent'
-  url: 'http://supertop.co/castro/'
-  producer: 
-    name: 'Supertop'
-    url: 'http://supertop.co'
-
 - regex: 'Curious George'
   name: 'Analytics SEO Crawler'
   category: 'Crawler'
@@ -101,8 +93,8 @@
     name: 'Ask Jeeves Inc.'
     url: 'http://www.ask.com'
 
-- regex: 'Backlink-Check\.de'
-  name: 'Backlink-Check.de'
+- regex: 'Backlink-Ceck\.de'
+  name: 'Backlink-Ceck.de'
   category: 'Crawler'
   url: 'http://www.backlink-check.de/bot.html'
   producer:

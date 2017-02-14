@@ -5,8 +5,8 @@ namespace Illuminate\Queue\Console;
 use Carbon\Carbon;
 use Illuminate\Queue\Worker;
 use Illuminate\Console\Command;
-use Illuminate\Contracts\Queue\Job;
 use Illuminate\Queue\WorkerOptions;
+use Illuminate\Contracts\Queue\Job;
 use Illuminate\Queue\Events\JobFailed;
 use Illuminate\Queue\Events\JobProcessed;
 
@@ -18,8 +18,8 @@ class WorkCommand extends Command
      * @var string
      */
     protected $signature = 'queue:work
-                            {connection? : The name of the queue connection to work}
-                            {--queue= : The names of the queues to work}
+                            {connection? : The name of connection}
+                            {--queue= : The queue to listen on}
                             {--daemon : Run the worker in daemon mode (Deprecated)}
                             {--once : Only process the next job on the queue}
                             {--delay=0 : Amount of time to delay failed jobs}
@@ -80,7 +80,7 @@ class WorkCommand extends Command
         // connection being run for the queue operation currently being executed.
         $queue = $this->getQueue($connection);
 
-        $this->runWorker(
+        $response = $this->runWorker(
             $connection, $queue
         );
     }
@@ -111,7 +111,7 @@ class WorkCommand extends Command
         return new WorkerOptions(
             $this->option('delay'), $this->option('memory'),
             $this->option('timeout'), $this->option('sleep'),
-            $this->option('tries'), $this->option('force')
+            $this->option('tries')
         );
     }
 

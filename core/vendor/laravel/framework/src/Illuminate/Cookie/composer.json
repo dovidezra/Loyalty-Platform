@@ -15,10 +15,10 @@
     ],
     "require": {
         "php": ">=5.6.4",
-        "illuminate/contracts": "5.4.*",
-        "illuminate/support": "5.4.*",
-        "symfony/http-foundation": "~3.2",
-        "symfony/http-kernel": "~3.2"
+        "illuminate/contracts": "5.3.*",
+        "illuminate/support": "5.3.*",
+        "symfony/http-foundation": "3.1.*",
+        "symfony/http-kernel": "3.1.*"
     },
     "autoload": {
         "psr-4": {
@@ -27,11 +27,8 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "5.4-dev"
+            "dev-master": "5.3-dev"
         }
-    },
-    "config": {
-        "sort-packages": true
     },
     "minimum-stability": "dev"
 }

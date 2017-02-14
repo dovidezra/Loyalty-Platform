@@ -91,7 +91,6 @@ class PasswordBrokerManager implements FactoryContract
 
         return new DatabaseTokenRepository(
             $this->app['db']->connection($connection),
-            $this->app['hash'],
             $config['table'],
             $key,
             $config['expire']

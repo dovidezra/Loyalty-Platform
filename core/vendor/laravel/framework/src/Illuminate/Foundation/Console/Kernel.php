@@ -5,13 +5,11 @@ namespace Illuminate\Foundation\Console;
 use Closure;
 use Exception;
 use Throwable;
-use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Console\Application as Artisan;
-use Illuminate\Contracts\Debug\ExceptionHandler;
+use Illuminate\Console\Events\ArtisanStarting;
 use Illuminate\Contracts\Foundation\Application;
-use Illuminate\Contracts\Cache\Repository as Cache;
-use Illuminate\Contracts\Queue\Queue as QueueContract;
 use Illuminate\Contracts\Console\Kernel as KernelContract;
 use Symfony\Component\Debug\Exception\FatalThrowableError;
 
@@ -58,13 +56,14 @@ class Kernel implements KernelContract
      * @var array
      */
     protected $bootstrappers = [
-        \Illuminate\Foundation\Bootstrap\LoadEnvironmentVariables::class,
-        \Illuminate\Foundation\Bootstrap\LoadConfiguration::class,
-        \Illuminate\Foundation\Bootstrap\HandleExceptions::class,
-        \Illuminate\Foundation\Bootstrap\RegisterFacades::class,
-        \Illuminate\Foundation\Bootstrap\SetRequestForConsole::class,
-        \Illuminate\Foundation\Bootstrap\RegisterProviders::class,
-        \Illuminate\Foundation\Bootstrap\BootProviders::class,
+        'Illuminate\Foundation\Bootstrap\DetectEnvironment',
+        'Illuminate\Foundation\Bootstrap\LoadConfiguration',
+        'Illuminate\Foundation\Bootstrap\ConfigureLogging',
+        'Illuminate\Foundation\Bootstrap\HandleExceptions',
+        'Illuminate\Foundation\Bootstrap\RegisterFacades',
+        'Illuminate\Foundation\Bootstrap\SetRequestForConsole',
+        'Illuminate\Foundation\Bootstrap\RegisterProviders',
+        'Illuminate\Foundation\Bootstrap\BootProviders',
     ];
 
     /**
@@ -96,7 +95,7 @@ class Kernel implements KernelContract
     protected function defineConsoleSchedule()
     {
         $this->app->instance(
-            Schedule::class, $schedule = new Schedule($this->app[Cache::class])
+            'Illuminate\Console\Scheduling\Schedule', $schedule = new Schedule
         );
 
         $this->schedule($schedule);
@@ -182,8 +181,8 @@ class Kernel implements KernelContract
     {
         $command = new ClosureCommand($signature, $callback);
 
-        Artisan::starting(function ($artisan) use ($command) {
-            $artisan->add($command);
+        $this->app['events']->listen(ArtisanStarting::class, function ($event) use ($command) {
+            $event->artisan->add($command);
         });
 
         return $command;
@@ -205,20 +204,13 @@ class Kernel implements KernelContract
      *
      * @param  string  $command
      * @param  array  $parameters
-     * @param  \Symfony\Component\Console\Output\OutputInterface  $outputBuffer
      * @return int
      */
-    public function call($command, array $parameters = [], $outputBuffer = null)
+    public function call($command, array $parameters = [])
     {
         $this->bootstrap();
 
-        if (! $this->commandsLoaded) {
-            $this->commands();
-
-            $this->commandsLoaded = true;
-        }
-
-        return $this->getArtisan()->call($command, $parameters, $outputBuffer);
+        return $this->getArtisan()->call($command, $parameters);
     }
 
     /**
@@ -230,8 +222,8 @@ class Kernel implements KernelContract
      */
     public function queue($command, array $parameters = [])
     {
-        $this->app[QueueContract::class]->push(
-            new QueuedCommand(func_get_args())
+        $this->app['Illuminate\Contracts\Queue\Queue']->push(
+            'Illuminate\Foundation\Console\QueuedJob', func_get_args()
         );
     }
 
@@ -320,7 +312,7 @@ class Kernel implements KernelContract
      */
     protected function reportException(Exception $e)
     {
-        $this->app[ExceptionHandler::class]->report($e);
+        $this->app['Illuminate\Contracts\Debug\ExceptionHandler']->report($e);
     }
 
     /**
@@ -332,6 +324,6 @@ class Kernel implements KernelContract
      */
     protected function renderException($output, Exception $e)
     {
-        $this->app[ExceptionHandler::class]->renderForConsole($output, $e);
+        $this->app['Illuminate\Contracts\Debug\ExceptionHandler']->renderForConsole($output, $e);
     }
 }

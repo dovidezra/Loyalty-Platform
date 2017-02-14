@@ -4,22 +4,18 @@ namespace Illuminate\Database\Console\Migrations;
 
 use Illuminate\Console\ConfirmableTrait;
 use Illuminate\Database\Migrations\Migrator;
+use Symfony\Component\Console\Input\InputOption;
 
 class MigrateCommand extends BaseCommand
 {
     use ConfirmableTrait;
 
     /**
-     * The name and signature of the console command.
+     * The console command name.
      *
      * @var string
      */
-    protected $signature = 'migrate {--database= : The database connection to use.}
-                {--force : Force the operation to run when in production.}
-                {--path= : The path of migrations files to be executed.}
-                {--pretend : Dump the SQL queries that would be run.}
-                {--seed : Indicates if the seed task should be re-run.}
-                {--step : Force the migrations to be run so they can be rolled back individually.}';
+    protected $name = 'migrate';
 
     /**
      * The console command description.
@@ -94,9 +90,31 @@ class MigrateCommand extends BaseCommand
         $this->migrator->setConnection($this->option('database'));
 
         if (! $this->migrator->repositoryExists()) {
-            $this->call(
-                'migrate:install', ['--database' => $this->option('database')]
-            );
+            $options = ['--database' => $this->option('database')];
+
+            $this->call('migrate:install', $options);
         }
+    }
+
+    /**
+     * Get the console command options.
+     *
+     * @return array
+     */
+    protected function getOptions()
+    {
+        return [
+            ['database', null, InputOption::VALUE_OPTIONAL, 'The database connection to use.'],
+
+            ['force', null, InputOption::VALUE_NONE, 'Force the operation to run when in production.'],
+
+            ['path', null, InputOption::VALUE_OPTIONAL, 'The path of migrations files to be executed.'],
+
+            ['pretend', null, InputOption::VALUE_NONE, 'Dump the SQL queries that would be run.'],
+
+            ['seed', null, InputOption::VALUE_NONE, 'Indicates if the seed task should be re-run.'],
+
+            ['step', null, InputOption::VALUE_NONE, 'Force the migrations to be run so they can be rolled back individually.'],
+        ];
     }
 }

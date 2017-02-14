@@ -123,7 +123,7 @@ class elFinderVolumeFlysystemGoogleDriveNetmount extends \Hypweb\elFinderFlysyst
 
             if ($options['user'] === 'init') {
                 if (empty($options['url'])) {
-                    $options['url'] = elFinder::getConnectorUrl();
+                    $options['url'] = $this->getConnectorUrl();
                 }
                 
                 $callback  = $options['url']
@@ -318,6 +318,22 @@ class elFinderVolumeFlysystemGoogleDriveNetmount extends \Hypweb\elFinderFlysyst
         }
 
         return $res;
+    }
+
+    /**
+     * Get script url
+     * 
+     * @return string full URL
+     * @author Naoki Sawada
+     */
+    private function getConnectorUrl()
+    {
+        $url  = ((isset($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) !== 'off')? 'https://' : 'http://')
+               . $_SERVER['SERVER_NAME']                                              // host
+              . ($_SERVER['SERVER_PORT'] == 80 ? '' : ':' . $_SERVER['SERVER_PORT'])  // port
+               . $_SERVER['REQUEST_URI'];                                             // path & query
+        list($url) = explode('?', $url);
+        return $url;
     }
 
     /**

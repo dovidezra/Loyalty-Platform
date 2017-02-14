@@ -3,11 +3,10 @@
 namespace DummyNamespace;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Foundation\Bus\Dispatchable;
 
 class DummyClass
 {
-    use Dispatchable, Queueable;
+    use Queueable;
 
     /**
      * Create a new job instance.

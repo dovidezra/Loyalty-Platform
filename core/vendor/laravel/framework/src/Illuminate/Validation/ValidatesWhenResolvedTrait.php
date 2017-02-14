@@ -14,8 +14,6 @@ trait ValidatesWhenResolvedTrait
      */
     public function validate()
     {
-        $this->prepareForValidation();
-
         $instance = $this->getValidatorInstance();
 
         if (! $this->passesAuthorization()) {
@@ -23,16 +21,6 @@ trait ValidatesWhenResolvedTrait
         } elseif (! $instance->passes()) {
             $this->failedValidation($instance);
         }
-    }
-
-    /**
-     * Prepare the data for validation.
-     *
-     * @return void
-     */
-    protected function prepareForValidation()
-    {
-        // no default action
     }
 
     /**

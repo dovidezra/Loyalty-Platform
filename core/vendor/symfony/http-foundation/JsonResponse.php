@@ -62,7 +62,7 @@ class JsonResponse extends Response
      * @param int   $status  The response status code
      * @param array $headers An array of response headers
      *
-     * @return static
+     * @return JsonResponse
      */
     public static function create($data = null, $status = 200, $headers = array())
     {
@@ -70,38 +70,22 @@ class JsonResponse extends Response
     }
 
     /**
-     * Make easier the creation of JsonResponse from raw json.
-     */
-    public static function fromJsonString($data = null, $status = 200, $headers = array())
-    {
-        return new static($data, $status, $headers, true);
-    }
-
-    /**
      * Sets the JSONP callback.
      *
      * @param string|null $callback The JSONP callback or null to use none
      *
-     * @return $this
+     * @return JsonResponse
      *
      * @throws \InvalidArgumentException When the callback name is not valid
      */
     public function setCallback($callback = null)
     {
         if (null !== $callback) {
-            // partially taken from http://www.geekality.net/2011/08/03/valid-javascript-identifier/
-            // partially taken from https://github.com/willdurand/JsonpCallbackValidator
-            //      JsonpCallbackValidator is released under the MIT License. See https://github.com/willdurand/JsonpCallbackValidator/blob/v1.1.0/LICENSE for details.
-            //      (c) William Durand <william.durand1@gmail.com>
-            $pattern = '/^[$_\p{L}][$_\p{L}\p{Mn}\p{Mc}\p{Nd}\p{Pc}\x{200C}\x{200D}]*(?:\[(?:"(?:\\\.|[^"\\\])*"|\'(?:\\\.|[^\'\\\])*\'|\d+)\])*?$/u';
-            $reserved = array(
-                'break', 'do', 'instanceof', 'typeof', 'case', 'else', 'new', 'var', 'catch', 'finally', 'return', 'void', 'continue', 'for', 'switch', 'while',
-                'debugger', 'function', 'this', 'with', 'default', 'if', 'throw', 'delete', 'in', 'try', 'class', 'enum', 'extends', 'super',  'const', 'export',
-                'import', 'implements', 'let', 'private', 'public', 'yield', 'interface', 'package', 'protected', 'static', 'null', 'true', 'false',
-            );
+            // taken from http://www.geekality.net/2011/08/03/valid-javascript-identifier/
+            $pattern = '/^[$_\p{L}][$_\p{L}\p{Mn}\p{Mc}\p{Nd}\p{Pc}\x{200C}\x{200D}]*+$/u';
             $parts = explode('.', $callback);
             foreach ($parts as $part) {
-                if (!preg_match($pattern, $part) || in_array($part, $reserved, true)) {
+                if (!preg_match($pattern, $part)) {
                     throw new \InvalidArgumentException('The callback name is not valid.');
                 }
             }
@@ -117,7 +101,7 @@ class JsonResponse extends Response
      *
      * @param string $json
      *
-     * @return $this
+     * @return JsonResponse
      *
      * @throws \InvalidArgumentException
      */
@@ -133,7 +117,7 @@ class JsonResponse extends Response
      *
      * @param mixed $data
      *
-     * @return $this
+     * @return JsonResponse
      *
      * @throws \InvalidArgumentException
      */
@@ -180,7 +164,7 @@ class JsonResponse extends Response
      *
      * @param int $encodingOptions
      *
-     * @return $this
+     * @return JsonResponse
      */
     public function setEncodingOptions($encodingOptions)
     {
@@ -192,7 +176,7 @@ class JsonResponse extends Response
     /**
      * Updates the content and headers according to the JSON data and callback.
      *
-     * @return $this
+     * @return JsonResponse
      */
     protected function update()
     {

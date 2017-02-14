@@ -21,12 +21,11 @@ class elFinderConnector {
 	protected $options = array();
 	
 	/**
-	 * Must be use output($data) $data['header']
+	 * undocumented class variable
 	 *
 	 * @var string
-	 * @deprecated
 	 **/
-	protected $header = '';
+	protected $header = 'Content-Type: application/json';
 
 	/**
 	 * HTTP request method
@@ -34,13 +33,6 @@ class elFinderConnector {
 	 * @var string
 	 */
 	protected $reqMethod = '';
-	
-	/**
-	 * Content type of output JSON
-	 * 
-	 * @var string
-	 */
-	protected static $contentType = 'Content-Type: application/json';
 	
 	/**
 	 * Constructor
@@ -54,7 +46,7 @@ class elFinderConnector {
 		$this->elFinder = $elFinder;
 		$this->reqMethod = strtoupper($_SERVER["REQUEST_METHOD"]);
 		if ($debug) {
-			self::$contentType = 'Content-Type: text/html; charset=utf-8';
+			$this->header = 'Content-Type: text/html; charset=utf-8';
 		}
 	}
 	
@@ -67,40 +59,25 @@ class elFinderConnector {
 	public function run() {
 		$isPost = $this->reqMethod === 'POST';
 		$src    = $isPost ? $_POST : $_GET;
-		$maxInputVars = (! $src || isset($src['targets']))? ini_get('max_input_vars') : null;
-		if ((! $src || $maxInputVars) && $rawPostData = file_get_contents('php://input')) {
-			// for max_input_vars and supports IE XDomainRequest()
+		if ($isPost && !$src && $rawPostData = @file_get_contents('php://input')) {
+			// for support IE XDomainRequest()
 			$parts = explode('&', $rawPostData);
-			if (! $src || $maxInputVars < count($parts)) {
-				$src = array();
-				foreach($parts as $part) {
-					list($key, $value) = array_pad(explode('=', $part), 2, '');
-					$key = rawurldecode($key);
-					if (preg_match('/^(.+?)\[([^\[\]]*)\]$/', $key, $m)) {
-						$key = $m[1];
-						$idx = $m[2];
-						if (!isset($src[$key])) {
-							$src[$key] = array();
-						}
-						if ($idx) {
-							$src[$key][$idx] = rawurldecode($value);
-						} else {
-							$src[$key][] = rawurldecode($value);
-						}
-					} else {
-						$src[$key] = rawurldecode($value);
+			foreach($parts as $part) {
+				list($key, $value) = array_pad(explode('=', $part), 2, '');
+				$key = rawurldecode($key);
+				if (substr($key, -2) === '[]') {
+					$key = substr($key, 0, strlen($key) - 2);
+					if (!isset($src[$key])) {
+						$src[$key] = array();
 					}
+					$src[$key][] = rawurldecode($value);
+				} else {
+					$src[$key] = rawurldecode($value);
 				}
-				$_POST = $this->input_filter($src);
-				$_REQUEST = $this->input_filter(array_merge_recursive($src, $_REQUEST));
 			}
+			$_POST = $this->input_filter($src);
+			$_REQUEST = $this->input_filter(array_merge_recursive($src, $_REQUEST));
 		}
-		
-		if (isset($src['targets']) && $this->elFinder->maxTargets && count($src['targets']) > $this->elFinder->maxTargets) {
-			$error = $this->elFinder->error(elFinder::ERROR_MAX_TARGTES);
-			$this->output(array('error' => $this->elFinder->error(elFinder::ERROR_MAX_TARGTES)));
-		}
-		
 		$cmd    = isset($src['cmd']) ? $src['cmd'] : '';
 		$args   = array();
 		
@@ -163,19 +140,22 @@ class elFinderConnector {
 	 * @author Dmitry (dio) Levashov
 	 **/
 	protected function output(array $data) {
-		if ($this->header) {
-			self::sendHeader($this->header);
+		// clear output buffer
+		while(ob_get_level() && ob_end_clean()){}
+		
+		$header = isset($data['header']) ? $data['header'] : $this->header;
+		unset($data['header']);
+		if ($header) {
+			if (is_array($header)) {
+				foreach ($header as $h) {
+					header($h);
+				}
+			} else {
+				header($header);
+			}
 		}
 		
 		if (isset($data['pointer'])) {
-			// send optional header
-			if (!empty($data['header'])) {
-				self::sendHeader($data['header']);
-			}
-			
-			// clear output buffer
-			while(ob_get_level() && ob_end_clean()){}
-			
 			$toEnd = true;
 			$fp = $data['pointer'];
 			if (($this->reqMethod === 'GET' || $this->reqMethod === 'HEAD')
@@ -245,9 +225,18 @@ class elFinderConnector {
 			}
 			exit();
 		} else {
-			self::outputJson($data);
+			if (!empty($data['raw']) && !empty($data['error'])) {
+				echo $data['error'];
+			} else {
+				if (isset($data['debug']) && isset($data['debug']['phpErrors'])) {
+					$data['debug']['phpErrors'] = array_merge($data['debug']['phpErrors'], elFinder::$phpErrors);
+				}
+				echo json_encode($data);
+			}
+			flush();
 			exit(0);
 		}
+		
 	}
 	
 	/**
@@ -269,53 +258,5 @@ class elFinderConnector {
 		$res = str_replace("\0", '', $args);
 		$magic_quotes_gpc && ($res = stripslashes($res));
 		return $res;
-	}
-	
-	/**
-	 * Send HTTP header
-	 * 
-	 * @param string|array $header optional header
-	 */
-	protected static function sendHeader($header = null) {
-		if ($header) {
-			if (is_array($header)) {
-				foreach ($header as $h) {
-					header($h);
-				}
-			} else {
-				header($header);
-			}
-		}
-	}
-	
-	/**
-	 * Output JSON
-	 * 
-	 * @param array $data
-	 */
-	public static function outputJson($data) {
-		// send header
-		$header = isset($data['header']) ? $data['header'] : self::$contentType;
-		self::sendHeader($header);
-		
-		unset($data['header']);
-		
-		if (!empty($data['raw']) && !empty($data['error'])) {
-			$out = $data['error'];
-		} else {
-			if (isset($data['debug']) && isset($data['debug']['phpErrors'])) {
-				$data['debug']['phpErrors'] = array_merge($data['debug']['phpErrors'], elFinder::$phpErrors);
-			}
-			$out = json_encode($data);
-		}
-		
-		// clear output buffer
-		while(ob_get_level() && ob_end_clean()){}
-		
-		header('Content-Length: ' . strlen($out));
-		
-		echo $out;
-		
-		flush();
 	}
 }// END class 

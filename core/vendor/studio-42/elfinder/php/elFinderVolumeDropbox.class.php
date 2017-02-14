@@ -189,7 +189,7 @@ class elFinderVolumeDropbox extends elFinderVolumeDriver {
 						}
 					}
 					if (strpos($options['url'], 'http') !== 0 ) {
-						$options['url'] = elFinder::getConnectorUrl();
+						$options['url'] = $this->getConnectorUrl();
 					}
 					$callback  = $options['url']
 					           . '?cmd=netmount&protocol=dropbox&host=dropbox.com&user=init&pass=return&node='.$options['id'].$cdata;
@@ -257,6 +257,21 @@ class elFinderVolumeDropbox extends elFinderVolumeDriver {
 			}
 		}
 		return true;
+	}
+	
+	/**
+	 * Get script url
+	 * 
+	 * @return string full URL
+	 * @author Naoki Sawada
+	 */
+	private function getConnectorUrl() {
+		$url  = ((isset($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) !== 'off')? 'https://' : 'http://')
+		       . $_SERVER['SERVER_NAME']                                              // host
+		      . ($_SERVER['SERVER_PORT'] == 80 ? '' : ':' . $_SERVER['SERVER_PORT'])  // port
+		       . $_SERVER['REQUEST_URI'];                                             // path & query
+		list($url) = explode('?', $url);
+		return $url;
 	}
 	
 	/*********************************************************************/
@@ -631,7 +646,7 @@ class elFinderVolumeDropbox extends elFinderVolumeDriver {
 		
 		if (!empty($raw['url'])) {
 			$stat['url'] = $raw['url'];
-		} else if (! $this->disabledGetUrl) {
+		} else {
 			$stat['url'] = '1';
 		}
 		if (isset($raw['width'])) $stat['width'] = $raw['width'];
@@ -649,8 +664,6 @@ class elFinderVolumeDropbox extends elFinderVolumeDriver {
 	 **/
 	protected function cacheDir($path) {
 		$this->dirsCache[$path] = array();
-		$hasDir = false;
-		
 		$res = $this->query('select dat from '.$this->DB_TableName.' where path='.$this->DB->quote(strtolower($path)));
 		
 		if ($res) {
@@ -659,19 +672,11 @@ class elFinderVolumeDropbox extends elFinderVolumeDriver {
 				if ($stat = $this->parseRaw($raw)) {
 					$stat = $this->updateCache($raw['path'], $stat);
 					if (empty($stat['hidden']) && $path !== $raw['path']) {
-						if (! $hasDir && $stat['mime'] === 'directory') {
-							$hasDir = true;
-						}
 						$this->dirsCache[$path][] = $raw['path'];
 					}
 				}
 			}
 		}
-		
-		if (isset($this->sessionCache['subdirs'])) {
-			$this->sessionCache['subdirs'][$path] = $hasDir;
-		}
-		
 		return $this->dirsCache[$path];
 	}
 

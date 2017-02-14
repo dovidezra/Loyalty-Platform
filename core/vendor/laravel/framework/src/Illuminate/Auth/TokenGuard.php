@@ -83,10 +83,6 @@ class TokenGuard implements Guard
         $token = $this->request->query($this->inputKey);
 
         if (empty($token)) {
-            $token = $this->request->input($this->inputKey);
-        }
-
-        if (empty($token)) {
             $token = $this->request->bearerToken();
         }
 

@@ -5,6 +5,7 @@ use PHPExcel_Cell;
 use PHPExcel_Exception;
 use PHPExcel_Worksheet;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Config;
 use Maatwebsite\Excel\Writers\CellWriter;
 use Maatwebsite\Excel\Exceptions\LaravelExcelException;
 use PHPExcel_Worksheet_PageSetup;
@@ -45,19 +46,19 @@ class LaravelExcelWorksheet extends PHPExcel_Worksheet {
      * Data
      * @var array
      */
-    public $data = [];
+    public $data = array();
 
     /**
      * Merge data
      * @var array
      */
-    public $mergeData = [];
+    public $mergeData = array();
 
     /**
      * Allowed page setup
      * @var array
      */
-    public $allowedPageSetup = [
+    public $allowedPageSetup = array(
         'orientation',
         'paperSize',
         'scale',
@@ -70,17 +71,17 @@ class LaravelExcelWorksheet extends PHPExcel_Worksheet {
         'verticalCentered',
         'printArea',
         'firstPageNumber'
-    ];
+    );
 
     /**
      * Allowed page setup
      * @var array
      */
-    public $allowedStyles = [
+    public $allowedStyles = array(
         'fontFamily',
         'fontSize',
         'fontBold'
-    ];
+    );
 
     /**
      * Check if the file was autosized
@@ -111,7 +112,7 @@ class LaravelExcelWorksheet extends PHPExcel_Worksheet {
         $this->setParent($pParent);
         // check if we should generate headings
         // defaults to true if not overridden by settings
-        $this->autoGenerateHeading = config('excel.export.generate_heading_by_indices', true);
+        $this->autoGenerateHeading = Config::get('excel.export.generate_heading_by_indices', true);
     }
 
     /**
@@ -129,7 +130,7 @@ class LaravelExcelWorksheet extends PHPExcel_Worksheet {
             list($setter, $set) = $this->_setSetter($setup);
 
             // get the value
-            $value = config('excel.sheets.pageSetup.' . $setup, null);
+            $value = Config::get('excel.sheets.pageSetup.' . $setup, null);
 
             // Set the page setup value
             if (!is_null($value))
@@ -137,7 +138,7 @@ class LaravelExcelWorksheet extends PHPExcel_Worksheet {
         }
 
         // Set default page margins
-        $this->setPageMargin(config('excel.export.sheets.page_margin', false));
+        $this->setPageMargin(Config::get('excel.export.sheets.page_margin', false));
     }
 
     /**
@@ -148,7 +149,7 @@ class LaravelExcelWorksheet extends PHPExcel_Worksheet {
     {
         if (!is_array($margin))
         {
-            $marginArray = [$margin, $margin, $margin, $margin];
+            $marginArray = array($margin, $margin, $margin, $margin);
         }
         else
         {
@@ -224,7 +225,7 @@ class LaravelExcelWorksheet extends PHPExcel_Worksheet {
      * @param  boolean $explicit
      * @return LaravelExcelWorksheet
      */
-    public function rows($rows = [], $explicit = false)
+    public function rows($rows = array(), $explicit = false)
     {
         // Get the start row
         $startRow = $this->getStartRow();
@@ -353,7 +354,7 @@ class LaravelExcelWorksheet extends PHPExcel_Worksheet {
      */
     public function setView()
     {
-        return call_user_func_array([$this, 'loadView'], func_get_args());
+        return call_user_func_array(array($this, 'loadView'), func_get_args());
     }
 
     /**
@@ -363,7 +364,7 @@ class LaravelExcelWorksheet extends PHPExcel_Worksheet {
      * @param array  $mergeData
      * @return LaravelExcelWorksheet
      */
-    public function loadView($view, $data = [], $mergeData = [])
+    public function loadView($view, $data = array(), $mergeData = array())
     {
         // Init the parser
         if (!$this->parser)
@@ -598,7 +599,7 @@ class LaravelExcelWorksheet extends PHPExcel_Worksheet {
             if (count($firstRow) != count($firstRow, 1))
             {
                 // Loop through the data to remove arrays
-                $data = [];
+                $data = array();
                 $r = 0;
                 foreach ($array as $row)
                 {
@@ -692,10 +693,10 @@ class LaravelExcelWorksheet extends PHPExcel_Worksheet {
         if (in_array($key, $this->allowedPageSetup))
         {
             // Set params
-            $params = is_array($params) ? $params : [$params];
+            $params = is_array($params) ? $params : array($params);
 
             // Call the setter
-            return call_user_func_array([$this->getPageSetup(), $setter], $params);
+            return call_user_func_array(array($this->getPageSetup(), $setter), $params);
         }
 
         // If is a style
@@ -719,12 +720,12 @@ class LaravelExcelWorksheet extends PHPExcel_Worksheet {
     protected function setDefaultStyles($setter, $key, $params)
     {
         $caller = $this->getDefaultStyle();
-        $params = is_array($params) ? $params : [$params];
+        $params = is_array($params) ? $params : array($params);
 
         if (str_contains($key, 'font'))
             return $this->setFontStyle($caller, $setter, $key, $params);
 
-        return call_user_func_array([$caller, $setter], $params);
+        return call_user_func_array(array($caller, $setter), $params);
     }
 
     /**
@@ -765,7 +766,7 @@ class LaravelExcelWorksheet extends PHPExcel_Worksheet {
     {
         // Set caller to font
         $caller = $caller->getFont();
-        $params = is_array($params) ? $params : [$params];
+        $params = is_array($params) ? $params : array($params);
 
         // Clean the setter name
         $setter = lcfirst(str_replace('Font', '', $setter));
@@ -773,7 +774,7 @@ class LaravelExcelWorksheet extends PHPExcel_Worksheet {
         // Replace special cases
         $setter = str_replace('Family', 'Name', $setter);
 
-        return call_user_func_array([$caller, $setter], $params);
+        return call_user_func_array(array($caller, $setter), $params);
     }
 
     /**
@@ -956,7 +957,7 @@ class LaravelExcelWorksheet extends PHPExcel_Worksheet {
         if (isset($this->autoSize))
             return $this->autoSize;
 
-        return config('excel.export.autosize', true);
+        return Config::get('excel.export.autosize', true);
     }
 
     /**
@@ -1050,13 +1051,13 @@ class LaravelExcelWorksheet extends PHPExcel_Worksheet {
      */
     public function setAllBorders($weight = 'thin')
     {
-        $styleArray = [
-            'borders' => [
-                'allborders' => [
+        $styleArray = array(
+            'borders' => array(
+                'allborders' => array(
                     'style' => $weight
-                ]
-            ]
-        ];
+                )
+            )
+        );
 
         // Apply the style
         $this->getDefaultStyle()
@@ -1099,7 +1100,7 @@ class LaravelExcelWorksheet extends PHPExcel_Worksheet {
         // Set center alignment on merge cells
         $this->cells($pRange, function ($cell) use ($alignment)
         {
-            $aligment = is_string($alignment) ? $alignment : config('excel.export.merged_cell_alignment', 'left');
+            $aligment = is_string($alignment) ? $alignment : Config::get('excel.export.merged_cell_alignment', 'left');
             $cell->setAlignment($aligment);
         });
 
@@ -1172,7 +1173,7 @@ class LaravelExcelWorksheet extends PHPExcel_Worksheet {
      */
     protected function getDefaultNullValue()
     {
-        return config('excel.export.sheets.nullValue', null);
+        return Config::get('excel.export.sheets.nullValue', null);
     }
 
     /**
@@ -1181,7 +1182,7 @@ class LaravelExcelWorksheet extends PHPExcel_Worksheet {
      */
     protected function getDefaultStartCell()
     {
-        return config('excel.export.sheets.startCell', 'A1');
+        return Config::get('excel.export.sheets.startCell', 'A1');
     }
 
 
@@ -1191,7 +1192,7 @@ class LaravelExcelWorksheet extends PHPExcel_Worksheet {
      */
     protected function getDefaultStrictNullComparison()
     {
-        return config('excel.export.sheets.strictNullComparison', false);
+        return Config::get('excel.export.sheets.strictNullComparison', false);
     }
 
     /**

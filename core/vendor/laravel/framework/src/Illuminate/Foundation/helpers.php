@@ -28,7 +28,7 @@ if (! function_exists('abort')) {
      */
     function abort($code, $message = '', array $headers = [])
     {
-        app()->abort($code, $message, $headers);
+        return app()->abort($code, $message, $headers);
     }
 }
 
@@ -93,16 +93,17 @@ if (! function_exists('app')) {
     /**
      * Get the available container instance.
      *
-     * @param  string  $abstract
+     * @param  string  $make
+     * @param  array   $parameters
      * @return mixed|\Illuminate\Foundation\Application
      */
-    function app($abstract = null)
+    function app($make = null, $parameters = [])
     {
-        if (is_null($abstract)) {
+        if (is_null($make)) {
             return Container::getInstance();
         }
 
-        return Container::getInstance()->make($abstract);
+        return Container::getInstance()->make($make, $parameters);
     }
 }
 
@@ -156,12 +157,11 @@ if (! function_exists('back')) {
      *
      * @param  int    $status
      * @param  array  $headers
-     * @param  mixed  $fallback
      * @return \Illuminate\Http\RedirectResponse
      */
-    function back($status = 302, $headers = [], $fallback = false)
+    function back($status = 302, $headers = [])
     {
-        return app('redirect')->back($status, $headers, $fallback);
+        return app('redirect')->back($status, $headers);
     }
 }
 
@@ -327,7 +327,7 @@ if (! function_exists('csrf_token')) {
         $session = app('session');
 
         if (isset($session)) {
-            return $session->token();
+            return $session->getToken();
         }
 
         throw new RuntimeException('Application session store not set.');
@@ -397,8 +397,6 @@ if (! function_exists('elixir')) {
             }
         }
 
-        $file = ltrim($file, '/');
-
         if (isset($manifest[$file])) {
             return '/'.trim($buildDirectory.'/'.$manifest[$file], '/');
         }
@@ -428,7 +426,7 @@ if (! function_exists('encrypt')) {
 
 if (! function_exists('env')) {
     /**
-     * Gets the value of an environment variable.
+     * Gets the value of an environment variable. Supports boolean, empty and null.
      *
      * @param  string  $key
      * @param  mixed   $default
@@ -467,7 +465,7 @@ if (! function_exists('env')) {
 
 if (! function_exists('event')) {
     /**
-     * Dispatch an event and call the listeners.
+     * Fire an event and call the listeners.
      *
      * @param  string|object  $event
      * @param  mixed  $payload
@@ -476,7 +474,7 @@ if (! function_exists('event')) {
      */
     function event(...$args)
     {
-        return app('events')->dispatch(...$args);
+        return app('events')->fire(...$args);
     }
 }
 
@@ -494,7 +492,7 @@ if (! function_exists('factory')) {
         $arguments = func_get_args();
 
         if (isset($arguments[1]) && is_string($arguments[1])) {
-            return $factory->of($arguments[0], $arguments[1])->times(isset($arguments[2]) ? $arguments[2] : null);
+            return $factory->of($arguments[0], $arguments[1])->times(isset($arguments[2]) ? $arguments[2] : 1);
         } elseif (isset($arguments[1])) {
             return $factory->of($arguments[0])->times($arguments[1]);
         } else {
@@ -545,49 +543,6 @@ if (! function_exists('method_field')) {
     function method_field($method)
     {
         return new HtmlString('<input type="hidden" name="_method" value="'.$method.'">');
-    }
-}
-
-if (! function_exists('mix')) {
-    /**
-     * Get the path to a versioned Mix file.
-     *
-     * @param  string  $path
-     * @param  string  $manifestDirectory
-     * @return \Illuminate\Support\HtmlString
-     *
-     * @throws \Exception
-     */
-    function mix($path, $manifestDirectory = '')
-    {
-        static $manifest;
-
-        if ($manifestDirectory && ! starts_with($manifestDirectory, '/')) {
-            $manifestDirectory = "/{$manifestDirectory}";
-        }
-
-        if (! $manifest) {
-            if (! file_exists($manifestPath = public_path($manifestDirectory.'/mix-manifest.json'))) {
-                throw new Exception('The Mix manifest does not exist.');
-            }
-
-            $manifest = json_decode(file_get_contents($manifestPath), true);
-        }
-
-        if (! starts_with($path, '/')) {
-            $path = "/{$path}";
-        }
-
-        if (! array_key_exists($path, $manifest)) {
-            throw new Exception(
-                "Unable to locate Mix file: {$path}. Please check your ".
-                'webpack.mix.js output paths and try again.'
-            );
-        }
-
-        return file_exists(public_path($manifestDirectory.'/hot'))
-                    ? new HtmlString("http://localhost:8080{$manifest[$path]}")
-                    : new HtmlString($manifestDirectory.$manifest[$path]);
     }
 }
 
@@ -680,11 +635,12 @@ if (! function_exists('resolve')) {
      * Resolve a service from the container.
      *
      * @param  string  $name
+     * @param  array  $parameters
      * @return mixed
      */
-    function resolve($name)
+    function resolve($name, $parameters = [])
     {
-        return app($name);
+        return app($name, $parameters);
     }
 }
 
@@ -806,17 +762,18 @@ if (! function_exists('trans')) {
      * Translate the given message.
      *
      * @param  string  $id
-     * @param  array   $replace
+     * @param  array   $parameters
+     * @param  string  $domain
      * @param  string  $locale
-     * @return \Illuminate\Contracts\Translation\Translator|string
+     * @return \Symfony\Component\Translation\TranslatorInterface|string
      */
-    function trans($id = null, $replace = [], $locale = null)
+    function trans($id = null, $parameters = [], $domain = 'messages', $locale = null)
     {
         if (is_null($id)) {
             return app('translator');
         }
 
-        return app('translator')->trans($id, $replace, $locale);
+        return app('translator')->trans($id, $parameters, $domain, $locale);
     }
 }
 
@@ -826,28 +783,14 @@ if (! function_exists('trans_choice')) {
      *
      * @param  string  $id
      * @param  int|array|\Countable  $number
-     * @param  array   $replace
+     * @param  array   $parameters
+     * @param  string  $domain
      * @param  string  $locale
      * @return string
      */
-    function trans_choice($id, $number, array $replace = [], $locale = null)
+    function trans_choice($id, $number, array $parameters = [], $domain = 'messages', $locale = null)
     {
-        return app('translator')->transChoice($id, $number, $replace, $locale);
-    }
-}
-
-if (! function_exists('__')) {
-    /**
-     * Translate the given message.
-     *
-     * @param  string  $key
-     * @param  array  $replace
-     * @param  string  $locale
-     * @return \Illuminate\Contracts\Translation\Translator|string
-     */
-    function __($key = null, $replace = [], $locale = null)
-    {
-        return app('translator')->getFromJson($key, $replace, $locale);
+        return app('translator')->transChoice($id, $number, $parameters, $domain, $locale);
     }
 }
 
