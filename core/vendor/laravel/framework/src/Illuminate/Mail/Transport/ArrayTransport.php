@@ -49,7 +49,7 @@ class ArrayTransport extends Transport
     /**
      * Clear all of the messages from the local collection.
      *
-     * @return \Illuminate\Support\Collection
+     * @return void
      */
     public function flush()
     {

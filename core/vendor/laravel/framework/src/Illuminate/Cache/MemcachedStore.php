@@ -49,7 +49,7 @@ class MemcachedStore extends TaggableStore implements Store
     /**
      * Retrieve an item from the cache by key.
      *
-     * @param  string  $key
+     * @param  string|array  $key
      * @return mixed
      */
     public function get($key)
@@ -184,11 +184,11 @@ class MemcachedStore extends TaggableStore implements Store
     /**
      * Remove all items from the cache.
      *
-     * @return bool
+     * @return void
      */
     public function flush()
     {
-        return $this->memcached->flush();
+        $this->memcached->flush();
     }
 
     /**

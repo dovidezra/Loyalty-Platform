@@ -46,13 +46,17 @@ class RequestDataCollector extends DataCollector implements EventSubscriberInter
 
         // attributes are serialized and as they can be anything, they need to be converted to strings.
         $attributes = array();
-        $route = '';
         foreach ($request->attributes->all() as $key => $value) {
-            if ('_route' === $key) {
-                $route = is_object($value) ? $value->getPath() : $value;
-                $attributes[$key] = $route;
-            } else {
+            if ('_route' === $key && is_object($value)) {
+                $attributes[$key] = $this->varToString($value->getPath());
+            } elseif ('_route_params' === $key) {
+                // we need to keep route params as an array (see getRouteParams())
+                foreach ($value as $k => $v) {
+                    $value[$k] = $this->varToString($v);
+                }
                 $attributes[$key] = $value;
+            } else {
+                $attributes[$key] = $this->varToString($value);
             }
         }
 
@@ -94,7 +98,6 @@ class RequestDataCollector extends DataCollector implements EventSubscriberInter
             'request_server' => $request->server->all(),
             'request_cookies' => $request->cookies->all(),
             'request_attributes' => $attributes,
-            'route' => $route,
             'response_headers' => $responseHeaders,
             'session_metadata' => $sessionMetadata,
             'session_attributes' => $sessionAttributes,
@@ -124,7 +127,7 @@ class RequestDataCollector extends DataCollector implements EventSubscriberInter
                 $value = array_map(function ($v) { return isset($v[0]) && !isset($v[1]) ? $v[0] : $v; }, $value);
             }
             if ('request_server' !== $key && 'request_cookies' !== $key) {
-                $this->data[$key] = array_map(array($this, 'cloneVar'), $value);
+                $this->data[$key] = $value;
             }
         }
 
@@ -176,14 +179,14 @@ class RequestDataCollector extends DataCollector implements EventSubscriberInter
         return new ParameterBag($this->data['request_headers']);
     }
 
-    public function getRequestServer($raw = false)
+    public function getRequestServer()
     {
-        return new ParameterBag($raw ? $this->data['request_server'] : array_map(array($this, 'cloneVar'), $this->data['request_server']));
+        return new ParameterBag($this->data['request_server']);
     }
 
-    public function getRequestCookies($raw = false)
+    public function getRequestCookies()
     {
-        return new ParameterBag($raw ? $this->data['request_cookies'] : array_map(array($this, 'cloneVar'), $this->data['request_cookies']));
+        return new ParameterBag($this->data['request_cookies']);
     }
 
     public function getRequestAttributes()
@@ -250,12 +253,7 @@ class RequestDataCollector extends DataCollector implements EventSubscriberInter
      */
     public function getRoute()
     {
-        return $this->data['route'];
-    }
-
-    public function getIdentifier()
-    {
-        return $this->data['route'] ?: (is_array($this->data['controller']) ? $this->data['controller']['class'].'::'.$this->data['controller']['method'].'()' : $this->data['controller']);
+        return isset($this->data['request_attributes']['_route']) ? $this->data['request_attributes']['_route'] : '';
     }
 
     /**
@@ -267,22 +265,7 @@ class RequestDataCollector extends DataCollector implements EventSubscriberInter
      */
     public function getRouteParams()
     {
-        if (!isset($this->data['request_attributes']['_route_params'])) {
-            return array();
-        }
-
-        $data = $this->data['request_attributes']['_route_params'];
-        $rawData = $data->getRawData();
-        if (!isset($rawData[1])) {
-            return array();
-        }
-
-        $params = array();
-        foreach ($rawData[1] as $k => $v) {
-            $params[$k] = $data->seek($k);
-        }
-
-        return $params;
+        return isset($this->data['request_attributes']['_route_params']) ? $this->data['request_attributes']['_route_params'] : array();
     }
 
     /**

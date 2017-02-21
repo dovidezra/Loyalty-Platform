@@ -18,36 +18,16 @@ use Symfony\Component\Debug\Exception\FatalThrowableError;
 class Pipeline extends BasePipeline
 {
     /**
-     * Get the final piece of the Closure onion.
-     *
-     * @param  \Closure  $destination
-     * @return \Closure
-     */
-    protected function prepareDestination(Closure $destination)
-    {
-        return function ($passable) use ($destination) {
-            try {
-                return $destination($passable);
-            } catch (Exception $e) {
-                return $this->handleException($passable, $e);
-            } catch (Throwable $e) {
-                return $this->handleException($passable, new FatalThrowableError($e));
-            }
-        };
-    }
-
-    /**
      * Get a Closure that represents a slice of the application onion.
      *
      * @return \Closure
      */
-    protected function carry()
+    protected function getSlice()
     {
         return function ($stack, $pipe) {
             return function ($passable) use ($stack, $pipe) {
                 try {
-                    $slice = parent::carry();
-
+                    $slice = parent::getSlice();
                     $callable = $slice($stack, $pipe);
 
                     return $callable($passable);
@@ -57,6 +37,25 @@ class Pipeline extends BasePipeline
                     return $this->handleException($passable, new FatalThrowableError($e));
                 }
             };
+        };
+    }
+
+    /**
+     * Get the initial slice to begin the stack call.
+     *
+     * @param  \Closure  $destination
+     * @return \Closure
+     */
+    protected function getInitialSlice(Closure $destination)
+    {
+        return function ($passable) use ($destination) {
+            try {
+                return $destination($passable);
+            } catch (Exception $e) {
+                return $this->handleException($passable, $e);
+            } catch (Throwable $e) {
+                return $this->handleException($passable, new FatalThrowableError($e));
+            }
         };
     }
 

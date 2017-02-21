@@ -57,13 +57,6 @@ class Mailable implements MailableContract
     public $subject;
 
     /**
-     * The Markdown template for the message (if applicable).
-     *
-     * @var string
-     */
-    protected $markdown;
-
-    /**
      * The view to use for the message.
      *
      * @var string
@@ -136,9 +129,15 @@ class Mailable implements MailableContract
 
         $queueName = property_exists($this, 'queue') ? $this->queue : null;
 
-        return $queue->connection($connection)->pushOn(
-            $queueName ?: null, new SendQueuedMailable($this)
-        );
+        if ($queueName) {
+            return $queue->connection($connection)->pushOn(
+                $queueName, new SendQueuedMailable($this)
+            );
+        } else {
+            return $queue->connection($connection)->push(
+                new SendQueuedMailable($this)
+            );
+        }
     }
 
     /**
@@ -154,9 +153,15 @@ class Mailable implements MailableContract
 
         $queueName = property_exists($this, 'queue') ? $this->queue : null;
 
-        return $queue->connection($connection)->laterOn(
-            $queueName ?: null, $delay, new SendQueuedMailable($this)
-        );
+        if ($queueName) {
+            return $queue->connection($connection)->laterOn(
+                $queueName, $delay, new SendQueuedMailable($this)
+            );
+        } else {
+            return $queue->connection($connection)->later(
+                $delay, new SendQueuedMailable($this)
+            );
+        }
     }
 
     /**
@@ -166,34 +171,13 @@ class Mailable implements MailableContract
      */
     protected function buildView()
     {
-        if (isset($this->markdown)) {
-            return $this->buildMarkdownView();
-        }
-
         if (isset($this->view, $this->textView)) {
             return [$this->view, $this->textView];
         } elseif (isset($this->textView)) {
             return ['text' => $this->textView];
+        } else {
+            return $this->view;
         }
-
-        return $this->view;
-    }
-
-    /**
-     * Build the Markdown view for the message.
-     *
-     * @return array
-     */
-    protected function buildMarkdownView()
-    {
-        $markdown = Container::getInstance()->make(Markdown::class);
-
-        $data = $this->buildViewData();
-
-        return [
-            'html' => $markdown->render($this->markdown, $data),
-            'text' => $markdown->renderText($this->markdown, $data),
-        ];
     }
 
     /**
@@ -341,18 +325,6 @@ class Mailable implements MailableContract
     }
 
     /**
-     * Determine if the given recipient is set on the mailable.
-     *
-     * @param  object|array|string  $address
-     * @param  string|null  $name
-     * @return bool
-     */
-    public function hasTo($address, $name = null)
-    {
-        return $this->hasRecipient($address, $name, 'to');
-    }
-
-    /**
      * Set the recipients of the message.
      *
      * @param  object|array|string  $address
@@ -365,18 +337,6 @@ class Mailable implements MailableContract
     }
 
     /**
-     * Determine if the given recipient is set on the mailable.
-     *
-     * @param  object|array|string  $address
-     * @param  string|null  $name
-     * @return bool
-     */
-    public function hasCc($address, $name = null)
-    {
-        return $this->hasRecipient($address, $name, 'cc');
-    }
-
-    /**
      * Set the recipients of the message.
      *
      * @param  object|array|string  $address
@@ -386,18 +346,6 @@ class Mailable implements MailableContract
     public function bcc($address, $name = null)
     {
         return $this->setAddress($address, $name, 'bcc');
-    }
-
-    /**
-     * Determine if the given recipient is set on the mailable.
-     *
-     * @param  object|array|string  $address
-     * @param  string|null  $name
-     * @return bool
-     */
-    public function hasBcc($address, $name = null)
-    {
-        return $this->hasRecipient($address, $name, 'bcc');
     }
 
     /**
@@ -415,8 +363,6 @@ class Mailable implements MailableContract
     /**
      * Set the recipients of the message.
      *
-     * All recipients are stored internally as [['name' => ?, 'address' => ?]]
-     *
      * @param  object|array|string  $address
      * @param  string|null  $name
      * @param  string  $property
@@ -424,77 +370,38 @@ class Mailable implements MailableContract
      */
     protected function setAddress($address, $name = null, $property = 'to')
     {
-        foreach ($this->addressesToArray($address, $name) as $recipient) {
-            $recipient = $this->normalizeRecipient($recipient);
+        if (is_object($address) && ! $address instanceof Collection) {
+            $address = [$address];
+        }
 
-            $this->{$property}[] = [
-                'name' => isset($recipient->name) ? $recipient->name : null,
-                'address' => $recipient->email,
-            ];
+        if ($address instanceof Collection || is_array($address)) {
+            foreach ($address as $user) {
+                $user = $this->parseUser($user);
+
+                $this->{$property}($user->email, isset($user->name) ? $user->name : null);
+            }
+        } else {
+            $this->{$property}[] = compact('address', 'name');
         }
 
         return $this;
     }
 
     /**
-     * Convert the given recipient arguments to an array.
+     * Parse the given user into an object.
      *
-     * @param  object|array|string  $address
-     * @param  string|null  $name
-     * @return array
-     */
-    protected function addressesToArray($address, $name)
-    {
-        if (! is_array($address) && ! $address instanceof Collection) {
-            $address = is_string($name) ? [['name' => $name, 'email' => $address]] : [$address];
-        }
-
-        return $address;
-    }
-
-    /**
-     * Convert the given recipient into an object.
-     *
-     * @param  mixed  $recipient
+     * @param  mixed  $user
      * @return object
      */
-    protected function normalizeRecipient($recipient)
+    protected function parseUser($user)
     {
-        if (is_array($recipient)) {
-            return (object) $recipient;
-        } elseif (is_string($recipient)) {
-            return (object) ['email' => $recipient];
+        if (is_array($user)) {
+            return (object) $user;
+        } elseif (is_string($user)) {
+            return (object) ['email' => $user];
         }
 
-        return $recipient;
-    }
-
-    /**
-     * Determine if the given recipient is set on the mailable.
-     *
-     * @param  object|array|string  $address
-     * @param  string|null  $name
-     * @param  string  $property
-     * @return bool
-     */
-    protected function hasRecipient($address, $name = null, $property = 'to')
-    {
-        $expected = $this->normalizeRecipient(
-            $this->addressesToArray($address, $name)[0]
-        );
-
-        $expected = [
-            'name' => isset($expected->name) ? $expected->name : null,
-            'address' => $expected->email,
-        ];
-
-        return collect($this->{$property})->contains(function ($actual) use ($expected) {
-            if (! isset($expected['name'])) {
-                return $actual['address'] == $expected['address'];
-            } else {
-                return $actual == $expected;
-            }
-        });
+        return $user;
     }
 
     /**
@@ -506,21 +413,6 @@ class Mailable implements MailableContract
     public function subject($subject)
     {
         $this->subject = $subject;
-
-        return $this;
-    }
-
-    /**
-     * Set the Markdown template for the message.
-     *
-     * @param  string  $view
-     * @param  array  $data
-     * @return $this
-     */
-    public function markdown($view, array $data = [])
-    {
-        $this->markdown = $view;
-        $this->viewData = $data;
 
         return $this;
     }

@@ -67,58 +67,15 @@ class LengthAwarePaginator extends AbstractPaginator implements Arrayable, Array
     }
 
     /**
-     * Render the paginator using the given view.
+     * Get the URL for the next page.
      *
-     * @param  string  $view
-     * @param  array  $data
-     * @return string
+     * @return string|null
      */
-    public function links($view = null, $data = [])
+    public function nextPageUrl()
     {
-        return $this->render($view, $data);
-    }
-
-    /**
-     * Render the paginator using the given view.
-     *
-     * @param  string  $view
-     * @param  array  $data
-     * @return string
-     */
-    public function render($view = null, $data = [])
-    {
-        return new HtmlString(static::viewFactory()->make($view ?: static::$defaultView, array_merge($data, [
-            'paginator' => $this,
-            'elements' => $this->elements(),
-        ]))->render());
-    }
-
-    /**
-     * Get the array of elements to pass to the view.
-     *
-     * @return array
-     */
-    protected function elements()
-    {
-        $window = UrlWindow::make($this);
-
-        return array_filter([
-            $window['first'],
-            is_array($window['slider']) ? '...' : null,
-            $window['slider'],
-            is_array($window['last']) ? '...' : null,
-            $window['last'],
-        ]);
-    }
-
-    /**
-     * Get the total number of items being paginated.
-     *
-     * @return int
-     */
-    public function total()
-    {
-        return $this->total;
+        if ($this->lastPage() > $this->currentPage()) {
+            return $this->url($this->currentPage() + 1);
+        }
     }
 
     /**
@@ -132,15 +89,13 @@ class LengthAwarePaginator extends AbstractPaginator implements Arrayable, Array
     }
 
     /**
-     * Get the URL for the next page.
+     * Get the total number of items being paginated.
      *
-     * @return string|null
+     * @return int
      */
-    public function nextPageUrl()
+    public function total()
     {
-        if ($this->lastPage() > $this->currentPage()) {
-            return $this->url($this->currentPage() + 1);
-        }
+        return $this->total;
     }
 
     /**
@@ -151,6 +106,41 @@ class LengthAwarePaginator extends AbstractPaginator implements Arrayable, Array
     public function lastPage()
     {
         return $this->lastPage;
+    }
+
+    /**
+     * Render the paginator using the given view.
+     *
+     * @param  string  $view
+     * @return string
+     */
+    public function links($view = null)
+    {
+        return $this->render($view);
+    }
+
+    /**
+     * Render the paginator using the given view.
+     *
+     * @param  string  $view
+     * @return string
+     */
+    public function render($view = null)
+    {
+        $window = UrlWindow::make($this);
+
+        $elements = [
+            $window['first'],
+            is_array($window['slider']) ? '...' : null,
+            $window['slider'],
+            is_array($window['last']) ? '...' : null,
+            $window['last'],
+        ];
+
+        return new HtmlString(static::viewFactory()->make($view ?: static::$defaultView, [
+            'paginator' => $this,
+            'elements' => array_filter($elements),
+        ])->render());
     }
 
     /**

@@ -88,12 +88,6 @@ class CorsService
         if ($this->options['exposedHeaders']) {
             $response->headers->set('Access-Control-Expose-Headers', implode(', ', $this->options['exposedHeaders']));
         }
-
-        if ($this->options['allowedHeaders']) {
-            $allowedHeaders = $this->options['allowedHeaders'] === true
-                ? '*' : implode(', ', $this->options['allowedHeaders']);
-            $response->headers->set('Access-Control-Allow-Headers', $allowedHeaders);
-        }
         
         return $response;
     }
@@ -172,8 +166,8 @@ class CorsService
         }
         $origin = $request->headers->get('Origin');
 
-        foreach ($this->options['allowedOrigins'] as $allowedOrign) {
-            if (OriginMatcher::matches($allowedOrign, $origin)) {
+        foreach ($this->options['allowedOrigins'] as $allowedOrigin) {
+            if (OriginMatcher::matches($allowedOrigin, $origin)) {
                 return true;
             }
         }

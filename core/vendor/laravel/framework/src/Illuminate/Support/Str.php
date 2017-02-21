@@ -194,10 +194,10 @@ class Str
      * Parse a Class@method style callback into class and method.
      *
      * @param  string  $callback
-     * @param  string|null  $default
+     * @param  string  $default
      * @return array
      */
-    public static function parseCallback($callback, $default = null)
+    public static function parseCallback($callback, $default)
     {
         return static::contains($callback, '@') ? explode('@', $callback, 2) : [$callback, $default];
     }

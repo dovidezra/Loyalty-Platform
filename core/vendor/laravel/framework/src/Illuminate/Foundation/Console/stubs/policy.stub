@@ -11,19 +11,19 @@ class DummyClass
     use HandlesAuthorization;
 
     /**
-     * Determine whether the user can view the dummyModel.
+     * Determine whether the user can view the dummyModelName.
      *
      * @param  \DummyRootNamespaceUser  $user
-     * @param  \NamespacedDummyModel  $dummyModel
+     * @param  \NamespacedDummyModel  $dummyModelName
      * @return mixed
      */
-    public function view(User $user, DummyModel $dummyModel)
+    public function view(User $user, DummyModel $dummyModelName)
     {
         //
     }
 
     /**
-     * Determine whether the user can create dummyPluralModel.
+     * Determine whether the user can create dummyPluralModelName.
      *
      * @param  \DummyRootNamespaceUser  $user
      * @return mixed
@@ -34,25 +34,25 @@ class DummyClass
     }
 
     /**
-     * Determine whether the user can update the dummyModel.
+     * Determine whether the user can update the dummyModelName.
      *
      * @param  \DummyRootNamespaceUser  $user
-     * @param  \NamespacedDummyModel  $dummyModel
+     * @param  \NamespacedDummyModel  $dummyModelName
      * @return mixed
      */
-    public function update(User $user, DummyModel $dummyModel)
+    public function update(User $user, DummyModel $dummyModelName)
     {
         //
     }
 
     /**
-     * Determine whether the user can delete the dummyModel.
+     * Determine whether the user can delete the dummyModelName.
      *
      * @param  \DummyRootNamespaceUser  $user
-     * @param  \NamespacedDummyModel  $dummyModel
+     * @param  \NamespacedDummyModel  $dummyModelName
      * @return mixed
      */
-    public function delete(User $user, DummyModel $dummyModel)
+    public function delete(User $user, DummyModel $dummyModelName)
     {
         //
     }

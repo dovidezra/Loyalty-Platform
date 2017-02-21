@@ -8,39 +8,39 @@ use Illuminate\Contracts\Events\Dispatcher;
 class EventFake implements Dispatcher
 {
     /**
-     * All of the events that have been dispatched keyed by type.
+     * All of the events that have been fired keyed by type.
      *
      * @var array
      */
     protected $events = [];
 
     /**
-     * Assert if an event was dispatched based on a truth-test callback.
+     * Assert if an event was fired based on a truth-test callback.
      *
      * @param  string  $event
      * @param  callable|null  $callback
      * @return void
      */
-    public function assertDispatched($event, $callback = null)
+    public function assertFired($event, $callback = null)
     {
         PHPUnit::assertTrue(
-            $this->dispatched($event, $callback)->count() > 0,
-            "The expected [{$event}] event was not dispatched."
+            $this->fired($event, $callback)->count() > 0,
+            "The expected [{$event}] event was not fired."
         );
     }
 
     /**
-     * Determine if an event was dispatched based on a truth-test callback.
+     * Determine if an event was fired based on a truth-test callback.
      *
      * @param  string  $event
      * @param  callable|null  $callback
      * @return void
      */
-    public function assertNotDispatched($event, $callback = null)
+    public function assertNotFired($event, $callback = null)
     {
         PHPUnit::assertTrue(
-            $this->dispatched($event, $callback)->count() === 0,
-            "The unexpected [{$event}] event was dispatched."
+            $this->fired($event, $callback)->count() === 0,
+            "The unexpected [{$event}] event was fired."
         );
     }
 
@@ -51,9 +51,9 @@ class EventFake implements Dispatcher
      * @param  callable|null  $callback
      * @return \Illuminate\Support\Collection
      */
-    public function dispatched($event, $callback = null)
+    public function fired($event, $callback = null)
     {
-        if (! $this->hasDispatched($event)) {
+        if (! $this->hasFired($event)) {
             return collect();
         }
 
@@ -63,18 +63,35 @@ class EventFake implements Dispatcher
 
         return collect($this->events[$event])->filter(function ($arguments) use ($callback) {
             return $callback(...$arguments);
+        })->flatMap(function ($arguments) {
+            return $this->mapEventArguments($arguments);
         });
     }
 
     /**
-     * Determine if the given event has been dispatched.
+     * Determine if the given event has been fired.
      *
      * @param  string  $event
      * @return bool
      */
-    public function hasDispatched($event)
+    public function hasFired($event)
     {
         return isset($this->events[$event]) && ! empty($this->events[$event]);
+    }
+
+    /**
+     * Map the "fire" method arguments for inspection.
+     *
+     * @param  array  $arguments
+     * @return array
+     */
+    protected function mapEventArguments($arguments)
+    {
+        if (is_string($arguments[0])) {
+            return [$arguments[0] => $arguments[1]];
+        } else {
+            return [get_class($arguments[0]) => $arguments[0]];
+        }
     }
 
     /**
@@ -82,9 +99,10 @@ class EventFake implements Dispatcher
      *
      * @param  string|array  $events
      * @param  mixed  $listener
+     * @param  int  $priority
      * @return void
      */
-    public function listen($events, $listener)
+    public function listen($events, $listener, $priority = 0)
     {
         //
     }
@@ -101,7 +119,7 @@ class EventFake implements Dispatcher
     }
 
     /**
-     * Register an event and payload to be dispatched later.
+     * Register an event and payload to be fired later.
      *
      * @param  string  $event
      * @param  array  $payload
@@ -121,6 +139,18 @@ class EventFake implements Dispatcher
     public function subscribe($subscriber)
     {
         //
+    }
+
+    /**
+     * Fire an event until the first non-null response is returned.
+     *
+     * @param  string  $event
+     * @param  array  $payload
+     * @return mixed
+     */
+    public function until($event, $payload = [])
+    {
+        return $this->fire($event, $payload, true);
     }
 
     /**
@@ -144,22 +174,19 @@ class EventFake implements Dispatcher
      */
     public function fire($event, $payload = [], $halt = false)
     {
-        return $this->dispatch($event, $payload, $halt);
-    }
-
-    /**
-     * Fire an event and call the listeners.
-     *
-     * @param  string|object  $event
-     * @param  mixed  $payload
-     * @param  bool  $halt
-     * @return array|null
-     */
-    public function dispatch($event, $payload = [], $halt = false)
-    {
         $name = is_object($event) ? get_class($event) : (string) $event;
 
         $this->events[$name][] = func_get_args();
+    }
+
+    /**
+     * Get the event that is currently firing.
+     *
+     * @return string
+     */
+    public function firing()
+    {
+        //
     }
 
     /**
@@ -179,18 +206,6 @@ class EventFake implements Dispatcher
      * @return void
      */
     public function forgetPushed()
-    {
-        //
-    }
-
-    /**
-     * Dispatch an event and call the listeners.
-     *
-     * @param  string|object $event
-     * @param  mixed $payload
-     * @return void
-     */
-    public function until($event, $payload = [])
     {
         //
     }

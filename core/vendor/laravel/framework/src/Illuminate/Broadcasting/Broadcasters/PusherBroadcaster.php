@@ -37,7 +37,8 @@ class PusherBroadcaster extends Broadcaster
     public function auth($request)
     {
         if (Str::startsWith($request->channel_name, ['private-', 'presence-']) &&
-            ! $request->user()) {
+            ! $request->user()
+        ) {
             throw new HttpException(403);
         }
 
@@ -94,9 +95,7 @@ class PusherBroadcaster extends Broadcaster
     {
         $socket = Arr::pull($payload, 'socket');
 
-        $response = $this->pusher->trigger(
-            $this->formatChannels($channels), $event, $payload, $socket, true
-        );
+        $response = $this->pusher->trigger($this->formatChannels($channels), $event, $payload, $socket, true);
 
         if ((is_array($response) && $response['status'] >= 200 && $response['status'] <= 299)
             || $response === true) {

@@ -121,10 +121,10 @@ class ThrottleRequests
      */
     protected function calculateRemainingAttempts($key, $maxAttempts, $retryAfter = null)
     {
-        if (is_null($retryAfter)) {
-            return $this->limiter->retriesLeft($key, $maxAttempts);
+        if (! is_null($retryAfter)) {
+            return 0;
         }
 
-        return 0;
+        return $this->limiter->retriesLeft($key, $maxAttempts);
     }
 }

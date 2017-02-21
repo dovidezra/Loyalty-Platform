@@ -103,8 +103,7 @@ interface Paginator
      * Render the paginator using a given view.
      *
      * @param  string|null  $view
-     * @param  array  $data
      * @return string
      */
-    public function render($view = null, $data = []);
+    public function render($view = null);
 }

@@ -28,7 +28,6 @@ class Pluralizer
         'furniture',
         'gold',
         'information',
-        'jedi',
         'knowledge',
         'love',
         'metadata',

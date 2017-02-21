@@ -7,12 +7,8 @@ use DateTime;
 use ArrayAccess;
 use Carbon\Carbon;
 use BadMethodCallException;
-use Illuminate\Cache\Events\CacheHit;
 use Illuminate\Contracts\Cache\Store;
-use Illuminate\Cache\Events\KeyWritten;
-use Illuminate\Cache\Events\CacheMissed;
 use Illuminate\Support\Traits\Macroable;
-use Illuminate\Cache\Events\KeyForgotten;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\Cache\Repository as CacheContract;
 
@@ -55,6 +51,58 @@ class Repository implements CacheContract, ArrayAccess
     }
 
     /**
+     * Set the event dispatcher instance.
+     *
+     * @param  \Illuminate\Contracts\Events\Dispatcher  $events
+     * @return void
+     */
+    public function setEventDispatcher(Dispatcher $events)
+    {
+        $this->events = $events;
+    }
+
+    /**
+     * Fire an event for this cache instance.
+     *
+     * @param  string  $event
+     * @param  array  $payload
+     * @return void
+     */
+    protected function fireCacheEvent($event, $payload)
+    {
+        if (! isset($this->events)) {
+            return;
+        }
+
+        switch ($event) {
+            case 'hit':
+                if (count($payload) == 2) {
+                    $payload[] = [];
+                }
+
+                return $this->events->fire(new Events\CacheHit($payload[0], $payload[1], $payload[2]));
+            case 'missed':
+                if (count($payload) == 1) {
+                    $payload[] = [];
+                }
+
+                return $this->events->fire(new Events\CacheMissed($payload[0], $payload[1]));
+            case 'delete':
+                if (count($payload) == 1) {
+                    $payload[] = [];
+                }
+
+                return $this->events->fire(new Events\KeyForgotten($payload[0], $payload[1]));
+            case 'write':
+                if (count($payload) == 3) {
+                    $payload[] = [];
+                }
+
+                return $this->events->fire(new Events\KeyWritten($payload[0], $payload[1], $payload[2], $payload[3]));
+        }
+    }
+
+    /**
      * Determine if an item exists in the cache.
      *
      * @param  string  $key
@@ -80,15 +128,12 @@ class Repository implements CacheContract, ArrayAccess
 
         $value = $this->store->get($this->itemKey($key));
 
-        // If we could not find the cache value, we will fire the missed event and get
-        // the default value for this cache value. This default could be a callback
-        // so we will execute the value function which will resolve it if needed.
         if (is_null($value)) {
-            $this->event(new CacheMissed($key));
+            $this->fireCacheEvent('missed', [$key]);
 
             $value = value($default);
         } else {
-            $this->event(new CacheHit($key, $value));
+            $this->fireCacheEvent('hit', [$key, $value]);
         }
 
         return $value;
@@ -104,40 +149,25 @@ class Repository implements CacheContract, ArrayAccess
      */
     public function many(array $keys)
     {
-        $values = $this->store->many(collect($keys)->map(function ($value, $key) {
-            return is_string($key) ? $key : $value;
-        })->values()->all());
+        $normalizedKeys = [];
 
-        return collect($values)->map(function ($value, $key) use ($keys) {
-            return $this->handleManyResult($keys, $key, $value);
-        })->all();
-    }
-
-    /**
-     * Handle a result for the "many" method.
-     *
-     * @param  array  $keys
-     * @param  string  $key
-     * @param  mixed  $value
-     * @return mixed
-     */
-    protected function handleManyResult($keys, $key, $value)
-    {
-        // If we could not find the cache value, we will fire the missed event and get
-        // the default value for this cache value. This default could be a callback
-        // so we will execute the value function which will resolve it if needed.
-        if (is_null($value)) {
-            $this->event(new CacheMissed($key));
-
-            return isset($keys[$key]) ? value($keys[$key]) : null;
+        foreach ($keys as $key => $value) {
+            $normalizedKeys[] = is_string($key) ? $key : $value;
         }
 
-        // If we found a valid value we will fire the "hit" event and return the value
-        // back from this function. The "hit" event gives developers an opportunity
-        // to listen for every possible cache "hit" throughout this applications.
-        $this->event(new CacheHit($key, $value));
+        $values = $this->store->many($normalizedKeys);
 
-        return $value;
+        foreach ($values as $key => &$value) {
+            if (is_null($value)) {
+                $this->fireCacheEvent('missed', [$key]);
+
+                $value = isset($keys[$key]) ? value($keys[$key]) : null;
+            } else {
+                $this->fireCacheEvent('hit', [$key, $value]);
+            }
+        }
+
+        return $values;
     }
 
     /**
@@ -149,9 +179,11 @@ class Repository implements CacheContract, ArrayAccess
      */
     public function pull($key, $default = null)
     {
-        return tap($this->get($key, $default), function ($value) use ($key) {
-            $this->forget($key);
-        });
+        $value = $this->get($key, $default);
+
+        $this->forget($key);
+
+        return $value;
     }
 
     /**
@@ -168,10 +200,12 @@ class Repository implements CacheContract, ArrayAccess
             return $this->putMany($key, $value);
         }
 
-        if (! is_null($minutes = $this->getMinutes($minutes))) {
+        $minutes = $this->getMinutes($minutes);
+
+        if (! is_null($minutes)) {
             $this->store->put($this->itemKey($key), $value, $minutes);
 
-            $this->event(new KeyWritten($key, $value, $minutes));
+            $this->fireCacheEvent('write', [$key, $value, $minutes]);
         }
     }
 
@@ -184,11 +218,13 @@ class Repository implements CacheContract, ArrayAccess
      */
     public function putMany(array $values, $minutes)
     {
-        if (! is_null($minutes = $this->getMinutes($minutes))) {
+        $minutes = $this->getMinutes($minutes);
+
+        if (! is_null($minutes)) {
             $this->store->putMany($values, $minutes);
 
             foreach ($values as $key => $value) {
-                $this->event(new KeyWritten($key, $value, $minutes));
+                $this->fireCacheEvent('write', [$key, $value, $minutes]);
             }
         }
     }
@@ -203,22 +239,16 @@ class Repository implements CacheContract, ArrayAccess
      */
     public function add($key, $value, $minutes)
     {
-        if (is_null($minutes = $this->getMinutes($minutes))) {
+        $minutes = $this->getMinutes($minutes);
+
+        if (is_null($minutes)) {
             return false;
         }
 
-        // If the store has an "add" method we will call the method on the store so it
-        // has a chance to override this logic. Some drivers better support the way
-        // this operation should work with a total "atomic" implementation of it.
         if (method_exists($this->store, 'add')) {
-            return $this->store->add(
-                $this->itemKey($key), $value, $minutes
-            );
+            return $this->store->add($this->itemKey($key), $value, $minutes);
         }
 
-        // If the value did not exist in the cache, we will put the value in the cache
-        // so it exists for subsequent requests. Then, we will return true so it is
-        // easy to know if the value gets added. Otherwise, we will return false.
         if (is_null($this->get($key))) {
             $this->put($key, $value, $minutes);
 
@@ -263,7 +293,7 @@ class Repository implements CacheContract, ArrayAccess
     {
         $this->store->forever($this->itemKey($key), $value);
 
-        $this->event(new KeyWritten($key, $value, 0));
+        $this->fireCacheEvent('write', [$key, $value, 0]);
     }
 
     /**
@@ -276,12 +306,10 @@ class Repository implements CacheContract, ArrayAccess
      */
     public function remember($key, $minutes, Closure $callback)
     {
-        $value = $this->get($key);
-
-        // If the item exists in the cache we will just return this immediately and if
-        // not we will execute the given Closure and cache the result of that for a
-        // given number of minutes so it's available for all subsequent requests.
-        if (! is_null($value)) {
+        // If the item exists in the cache we will just return this immediately
+        // otherwise we will execute the given Closure and cache the result
+        // of that execution for the given number of minutes in storage.
+        if (! is_null($value = $this->get($key))) {
             return $value;
         }
 
@@ -311,12 +339,10 @@ class Repository implements CacheContract, ArrayAccess
      */
     public function rememberForever($key, Closure $callback)
     {
-        $value = $this->get($key);
-
-        // If the item exists in the cache we will just return this immediately and if
-        // not we will execute the given Closure and cache the result of that for a
-        // given number of minutes so it's available for all subsequent requests.
-        if (! is_null($value)) {
+        // If the item exists in the cache we will just return this immediately
+        // otherwise we will execute the given Closure and cache the result
+        // of that execution for the given number of minutes. It's easy.
+        if (! is_null($value = $this->get($key))) {
             return $value;
         }
 
@@ -333,9 +359,11 @@ class Repository implements CacheContract, ArrayAccess
      */
     public function forget($key)
     {
-        return tap($this->store->forget($this->itemKey($key)), function () use ($key) {
-            $this->event(new KeyForgotten($key));
-        });
+        $success = $this->store->forget($this->itemKey($key));
+
+        $this->fireCacheEvent('delete', [$key]);
+
+        return $success;
     }
 
     /**
@@ -348,17 +376,19 @@ class Repository implements CacheContract, ArrayAccess
      */
     public function tags($names)
     {
-        if (! method_exists($this->store, 'tags')) {
-            throw new BadMethodCallException('This cache store does not support tagging.');
+        if (method_exists($this->store, 'tags')) {
+            $taggedCache = $this->store->tags($names);
+
+            if (! is_null($this->events)) {
+                $taggedCache->setEventDispatcher($this->events);
+            }
+
+            $taggedCache->setDefaultCacheTime($this->default);
+
+            return $taggedCache;
         }
 
-        $cache = $this->store->tags($names);
-
-        if (! is_null($this->events)) {
-            $cache->setEventDispatcher($this->events);
-        }
-
-        return $cache->setDefaultCacheTime($this->default);
+        throw new BadMethodCallException('This cache store does not support tagging.');
     }
 
     /**
@@ -386,13 +416,11 @@ class Repository implements CacheContract, ArrayAccess
      * Set the default cache time in minutes.
      *
      * @param  float|int  $minutes
-     * @return $this
+     * @return void
      */
     public function setDefaultCacheTime($minutes)
     {
         $this->default = $minutes;
-
-        return $this;
     }
 
     /**
@@ -403,30 +431,6 @@ class Repository implements CacheContract, ArrayAccess
     public function getStore()
     {
         return $this->store;
-    }
-
-    /**
-     * Fire an event for this cache instance.
-     *
-     * @param  string  $event
-     * @return void
-     */
-    protected function event($event)
-    {
-        if (isset($this->events)) {
-            $this->events->dispatch($event);
-        }
-    }
-
-    /**
-     * Set the event dispatcher instance.
-     *
-     * @param  \Illuminate\Contracts\Events\Dispatcher  $events
-     * @return void
-     */
-    public function setEventDispatcher(Dispatcher $events)
-    {
-        $this->events = $events;
     }
 
     /**

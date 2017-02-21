@@ -41,9 +41,7 @@ class SqlServerProcessor extends Processor
      */
     protected function processInsertGetIdForOdbc(Connection $connection)
     {
-        $result = $connection->selectFromWriteConnection(
-            'SELECT CAST(COALESCE(SCOPE_IDENTITY(), @@IDENTITY) AS int) AS insertid'
-        );
+        $result = $connection->selectFromWriteConnection('SELECT CAST(COALESCE(SCOPE_IDENTITY(), @@IDENTITY) AS int) AS insertid');
 
         if (! $result) {
             throw new Exception('Unable to retrieve lastInsertID for ODBC.');
@@ -62,8 +60,12 @@ class SqlServerProcessor extends Processor
      */
     public function processColumnListing($results)
     {
-        return array_map(function ($result) {
-            return with((object) $result)->name;
-        }, $results);
+        $mapping = function ($r) {
+            $r = (object) $r;
+
+            return $r->name;
+        };
+
+        return array_map($mapping, $results);
     }
 }

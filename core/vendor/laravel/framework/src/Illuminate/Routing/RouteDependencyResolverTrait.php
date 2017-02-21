@@ -10,6 +10,20 @@ use ReflectionFunctionAbstract;
 trait RouteDependencyResolverTrait
 {
     /**
+     * Call a class method with the resolved dependencies.
+     *
+     * @param  object  $instance
+     * @param  string  $method
+     * @return mixed
+     */
+    protected function callWithDependencies($instance, $method)
+    {
+        return call_user_func_array(
+            [$instance, $method], $this->resolveClassMethodDependencies([], $instance, $method)
+        );
+    }
+
+    /**
      * Resolve the object method's type-hinted dependencies.
      *
      * @param  array  $parameters

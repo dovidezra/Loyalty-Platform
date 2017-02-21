@@ -3,17 +3,10 @@
 namespace Illuminate\Http;
 
 use Exception;
-use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Http\Exception\HttpResponseException;
 
 trait ResponseTrait
 {
-    /**
-     * The original content of the response.
-     *
-     * @var mixed
-     */
-    public $original;
-
     /**
      * The exception that triggered the error response (if applicable).
      *
@@ -39,16 +32,6 @@ trait ResponseTrait
     public function content()
     {
         return $this->getContent();
-    }
-
-    /**
-     * Get the original response content.
-     *
-     * @return mixed
-     */
-    public function getOriginalContent()
-    {
-        return $this->original;
     }
 
     /**
@@ -125,7 +108,7 @@ trait ResponseTrait
     /**
      * Throws the response in a HttpResponseException instance.
      *
-     * @throws \Illuminate\Http\Exceptions\HttpResponseException
+     * @throws \Illuminate\Http\Exception\HttpResponseException
      */
     public function throwResponse()
     {

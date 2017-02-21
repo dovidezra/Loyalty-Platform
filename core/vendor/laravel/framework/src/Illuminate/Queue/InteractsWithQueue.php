@@ -44,7 +44,7 @@ trait InteractsWithQueue
     public function fail($exception = null)
     {
         if ($this->job) {
-            FailingJob::handle($this->job->getConnectionName(), $this->job, $exception);
+            return $this->job->failed($exception ?: new ManuallyFailedException);
         }
     }
 

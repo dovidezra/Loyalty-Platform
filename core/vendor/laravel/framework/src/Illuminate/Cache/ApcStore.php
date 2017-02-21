@@ -113,11 +113,11 @@ class ApcStore extends TaggableStore implements Store
     /**
      * Remove all items from the cache.
      *
-     * @return bool
+     * @return void
      */
     public function flush()
     {
-        return $this->apc->flush();
+        $this->apc->flush();
     }
 
     /**

@@ -27,7 +27,7 @@ trait ThrottlesLogins
      * Increment the login attempts for the user.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @return void
+     * @return int
      */
     protected function incrementLoginAttempts(Request $request)
     {
@@ -48,15 +48,9 @@ trait ThrottlesLogins
 
         $message = Lang::get('auth.throttle', ['seconds' => $seconds]);
 
-        $errors = [$this->username() => $message];
-
-        if ($request->expectsJson()) {
-            return response()->json($errors, 423);
-        }
-
         return redirect()->back()
             ->withInput($request->only($this->username(), 'remember'))
-            ->withErrors($errors);
+            ->withErrors([$this->username() => $message]);
     }
 
     /**

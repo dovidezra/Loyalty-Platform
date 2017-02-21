@@ -34,6 +34,16 @@ class PendingBroadcast
     }
 
     /**
+     * Handle the object's destruction.
+     *
+     * @return void
+     */
+    public function __destruct()
+    {
+        $this->events->fire($this->event);
+    }
+
+    /**
      * Broadcast the event to everyone except the current user.
      *
      * @return $this
@@ -45,15 +55,5 @@ class PendingBroadcast
         }
 
         return $this;
-    }
-
-    /**
-     * Handle the object's destruction.
-     *
-     * @return void
-     */
-    public function __destruct()
-    {
-        $this->events->dispatch($this->event);
     }
 }
